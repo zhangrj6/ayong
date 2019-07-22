@@ -29,6 +29,7 @@ export default class Index extends Component {
     return (
       <View className='index'>
         <Text>Hello world!</Text>
+        <View className='lw-icon lw-icon-connect' />
       </View>
     )
   }
