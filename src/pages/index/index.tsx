@@ -1,8 +1,17 @@
-import Taro, { Component, Config } from '@tarojs/taro'
-import { View, Text } from '@tarojs/components'
+import Taro, {Component, Config} from '@tarojs/taro'
+import {View, ScrollView} from '@tarojs/components'
 import './index.scss'
 
-export default class Index extends Component {
+interface Device {
+    name: string,
+    localName: string,
+    RSSI: number,
+    deviceId: string,
+}
+interface IState {
+    devices: Array<Device>,
+}
+export default class Index extends Component<{}, IState> {
 
   /**
    * 指定config的类型声明为: Taro.Config
@@ -13,6 +22,13 @@ export default class Index extends Component {
    */
   config: Config = {
     navigationBarTitleText: '首页'
+  };
+
+  constructor(props) {
+      super(props);
+      this.state = {
+          devices: [],
+      }
   }
 
   componentWillMount () { }
@@ -25,12 +41,31 @@ export default class Index extends Component {
 
   componentDidHide () { }
 
+  toComm = () => {};
+
   render () {
+    const { devices } = this.state;
     return (
-      <View className='index'>
-        <Text>Hello world!</Text>
-        <View className='lw-icon lw-icon-connect' />
-      </View>
+        <View className='index'>
+            <View>
+                <ScrollView
+                    scrollY
+                    scrollWithAnimation
+                >
+                    { devices.map((item) => (
+                        <View
+                            onClick={this.toComm}
+                            data-name={item.name || item.localName}
+                        >
+                            <View>{item.name}</View>
+                            <View>{item.RSSI}dBm</View>
+                            <View>{item.deviceId}</View>
+                        </View>
+                    ))
+                    }
+                </ScrollView>
+            </View>
+        </View>
     )
   }
 }
