@@ -1,2 +1,15 @@
-@import '../../utils/icon';
+$lw-main-height: calc(100vh - 70px);
 
+.about{
+  background-image: url("https://s2.ax1x.com/2019/07/27/eu5lJs.png");
+  background-size: 100vw $lw-main-height;
+  width: 100vw;
+  height: $lw-main-height;
+}
+
+.shop{
+  background-image: url("https://s2.ax1x.com/2019/07/27/euLHoV.png");
+  background-size: 100vw $lw-main-height;
+  width: 100vw;
+  height: $lw-main-height;
+}

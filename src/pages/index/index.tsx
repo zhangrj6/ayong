@@ -1,35 +1,27 @@
 import Taro, {Component, Config} from '@tarojs/taro'
-import {View, ScrollView} from '@tarojs/components'
+import { View } from '@tarojs/components'
+import { AtTabBar } from 'taro-ui'
 import './index.scss'
 
-interface Device {
-    name: string,
-    localName: string,
-    RSSI: number,
-    deviceId: string,
-}
 interface IState {
-    devices: Array<Device>,
+    current: number,
 }
 export default class Index extends Component<{}, IState> {
 
   /**
    * 指定config的类型声明为: Taro.Config
-   *
-   * 由于 typescript 对于 object 类型推导只能推出 Key 的基本类型
-   * 对于像 navigationBarTextStyle: 'black' 这样的推导出的类型是 string
-   * 提示和声明 navigationBarTextStyle: 'black' | 'white' 类型冲突, 需要显示声明类型
+   * https://imgchr.com/i/eu5lJs
    */
   config: Config = {
     navigationBarTitleText: '首页'
   };
 
-  constructor(props) {
-      super(props);
-      this.state = {
-          devices: [],
-      }
-  }
+    constructor () {
+        super(...arguments)
+        this.state = {
+            current: 0
+        }
+    }
 
   componentWillMount () { }
 
@@ -41,30 +33,43 @@ export default class Index extends Component<{}, IState> {
 
   componentDidHide () { }
 
-  toComm = () => {};
+    handleClick = (value) => {
+        this.setState({ current: value });
+    };
+
+    previewImage = () => {
+        const imgShop = 'https://s2.ax1x.com/2019/07/27/euLHoV.png';
+        const qrCode = 'https://s2.ax1x.com/2019/07/27/eu7qvn.png';
+        Taro.previewImage({
+            current: qrCode,
+            urls: [imgShop, qrCode]
+        })
+    }
 
   render () {
-    const { devices } = this.state;
+    const { current } = this.state;
     return (
-        <View className='index'>
-            <View>
-                <ScrollView
-                    scrollY
-                    scrollWithAnimation
-                >
-                    { devices.map((item) => (
-                        <View
-                            onClick={this.toComm}
-                            data-name={item.name || item.localName}
-                        >
-                            <View>{item.name}</View>
-                            <View>{item.RSSI}dBm</View>
-                            <View>{item.deviceId}</View>
-                        </View>
-                    ))
-                    }
-                </ScrollView>
-            </View>
+        <View>
+            { current == 0 && <View className="about"/> }
+            { current == 2 &&
+                <View
+                    className="shop"
+                    onClick={this.previewImage}
+                />
+            }
+            { current == 1 &&
+                <View/>
+            }
+            <AtTabBar
+                fixed
+                tabList={[
+                    { title: '关于我们', iconType: 'user' },
+                    { title: '工具集', iconType: 'equalizer' },
+                    { title: '商城', iconType: 'shopping-cart' }
+                ]}
+                onClick={this.handleClick}
+                current={current}
+            />
         </View>
     )
   }
