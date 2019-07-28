@@ -20,7 +20,7 @@ export default class Shop extends Component {
 
     render () {
         return (
-            <Image src='https://s2.ax1x.com/2019/07/27/eu7qvn.png'/>
+            <Image src='https://s2.ax1x.com/2019/07/27/eu5lJs.png'/>
         )
     }
 }

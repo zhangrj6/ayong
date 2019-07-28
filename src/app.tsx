@@ -21,7 +21,9 @@ class App extends Component {
   config: Config = {
     pages: [
       'pages/index/index',
-      'pages/shop/index'
+      'pages/other/index',
+      'pages/blue_scan/index',
+      'pages/blue_helper/index',
     ],
     window: {
       backgroundTextStyle: 'light',

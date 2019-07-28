@@ -1,6 +1,6 @@
 import Taro, {Component, Config} from '@tarojs/taro'
 import { View } from '@tarojs/components'
-import { AtTabBar } from 'taro-ui'
+import { AtTabBar, AtGrid } from 'taro-ui'
 import './index.scss'
 
 interface IState {
@@ -33,8 +33,17 @@ export default class Index extends Component<{}, IState> {
 
   componentDidHide () { }
 
-    handleClick = (value) => {
+    clickTabbar = (value) => {
         this.setState({ current: value });
+    };
+
+    clickTools = (item, index) => {
+        const path = [
+            `/pages/blue_scan/index?name=${item.value}`,
+            `/pages/other/index?name=${item.value}`,
+            `/pages/other/index?name=${item.value}`,
+        ][index];
+        Taro.navigateTo({url: path});
     };
 
     previewImage = () => {
@@ -58,7 +67,23 @@ export default class Index extends Component<{}, IState> {
                 />
             }
             { current == 1 &&
-                <View/>
+                <View>
+                    <AtGrid data={[
+                        {
+                            iconInfo: { value: 'chuankou', prefixClass: 'lw', size: 50, color: '#f00' },
+                            value: '蓝牙串口',
+                        },
+                        {
+                            iconInfo: { value: 'shebei', prefixClass: 'lw', size: 50, color: '#f00' },
+                            value: '罗网设备'
+                        },
+                        {
+                            iconInfo: { value: 'zhuangxiu', prefixClass: 'lw', size: 50, color: '#f00' },
+                            value: '开发中...'
+                        }
+                    ]} onClick={this.clickTools} />
+                </View>
+
             }
             <AtTabBar
                 fixed
@@ -67,7 +92,7 @@ export default class Index extends Component<{}, IState> {
                     { title: '工具集', iconType: 'equalizer' },
                     { title: '商城', iconType: 'shopping-cart' }
                 ]}
-                onClick={this.handleClick}
+                onClick={this.clickTabbar}
                 current={current}
             />
         </View>
