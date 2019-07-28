@@ -75,7 +75,7 @@ export default class Index extends Component<{}, IState> {
                         },
                         {
                             iconInfo: { value: 'shebei', prefixClass: 'lw', size: 50, color: '#f00' },
-                            value: '罗网设备'
+                            value: '开发中...'
                         },
                         {
                             iconInfo: { value: 'zhuangxiu', prefixClass: 'lw', size: 50, color: '#f00' },

@@ -15,7 +15,7 @@ interface IState {
 }
 export default class Index extends Component<{}, IState> {
     config: Config = {
-        navigationBarTitleText: '首页'
+        navigationBarTitleText: '蓝牙设备扫描'
     };
 
     _discoveryStarted: boolean = false;
@@ -122,19 +122,24 @@ export default class Index extends Component<{}, IState> {
         return (
             <View className='index'>
                 <AtNoticebar>已发现 {devices.length} 个BLE设备</AtNoticebar>
-                <AtButton
-                    type='primary'
-                    loading={loadingScan}
-                    onClick={this.openBluetoothAdapter}
-                >
-                    扫描设备
-                </AtButton>
-                <AtButton
-                    type='secondary'
-                    onClick={this.stopBluetoothDevicesDiscovery}
-                >
-                    停止扫描
-                </AtButton>
+                <View className='at-row at-row__justify--around'>
+                    <AtButton
+                        className='btn'
+                        type='primary'
+                        loading={loadingScan}
+                        onClick={this.openBluetoothAdapter}
+                    >
+                        扫描设备
+                    </AtButton>
+                    <AtButton
+                        className='btn'
+                        type='secondary'
+                        onClick={this.stopBluetoothDevicesDiscovery}
+                    >
+                        停止扫描
+                    </AtButton>
+                </View>
+
                 <AtList>
                     { devices.map((item,index) => (
                         <AtListItem
