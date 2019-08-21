@@ -1,0 +1,29 @@
+.index{
+  .btn{
+    width: 32vw;
+  }
+  .layout{
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    .receive{
+      flex-grow: 1;
+      border-top: 1px solid rgba(125, 125, 125, 0.5);
+      margin-top: 10px;
+    }
+    .send{
+      border-top: 1px solid rgba(125, 125, 125, 0.5);
+    }
+  }
+  .at-article__h3{
+    margin-bottom: 20px;
+    &:before{
+      content: '1';
+      background-color: blue;
+      width: 10px;
+      height: 10px;
+      margin-right: 10px;
+      color: blue;
+    }
+  }
+}

@@ -1,11 +1,10 @@
 import Taro, { Component, Config } from '@tarojs/taro'
-import {View, ScrollView} from '@tarojs/components'
+import {View} from '@tarojs/components'
 import {
-    AtButton, AtCheckbox, AtNavBar, AtNoticebar, AtModal,
-    AtModalHeader, AtModalContent, AtInputNumber,
-    AtInput, AtIcon, AtMessage,
+    AtButton, AtNavBar, AtMessage,
 } from "taro-ui";
-import { ab2hex, ab2Str, stringToBytes, regSendData } from '../../utils/helper';
+import { ab2hex, ab2Str, regSendData } from '../../../utils/helper';
+import { orderMap } from '../config';
 import './index.scss'
 
 interface IState {
@@ -16,14 +15,6 @@ interface IState {
     reconnect: string,
     receiveData: string,
     sendText: string,
-    rxCount: number,
-    txCount: number,
-    rxRate: number,
-    txRate: number,
-    timRX: number,
-    timTX: number,
-    autoSendInv: number,
-    showSetting: boolean,
     connected: boolean,
 }
 export interface ICheckbox {
@@ -66,14 +57,6 @@ export default class Index extends Component<{}, IState> {
             reconnect: '连接中...',
             receiveData: '',
             sendText: '',
-            rxCount: 0,
-            txCount: 0,
-            rxRate: 0,
-            txRate: 0,
-            timRX: 0,
-            timTX: 0,
-            autoSendInv: 100,
-            showSetting: false,
             connected: false,
         };
     }
@@ -96,12 +79,12 @@ export default class Index extends Component<{}, IState> {
 
     componentDidHide () { }
 
-    goclear = () => {
-        this.setState({
-            receiveData: "",
-            rxCount: 0,
-            txCount: 0,
-        })
+    openDevice = () => {
+        this.sendOrder(orderMap.openDevice);
+    };
+
+    closeDevice = () => {
+        this.sendOrder(orderMap.closeDevice);
     };
 
     godisconnect = () => {
@@ -125,68 +108,33 @@ export default class Index extends Component<{}, IState> {
                         connectState: "读取服务",
                         reconnect: "断开连接",
                         receiveData: "",
-                        rxCount: 0,
-                        txCount: 0,
                     });
                     this.getBLEDeviceServices(deviceId)
                 });
         }
     };
 
-    goautosend = () => {
-        Taro.atMessage({ message: "自动发送功能暂未开发...", type: "warning" });
-    };
-
-    gosend = () => {
-        const { connected, sendText } = this.state;
+    sendOrder = (sendText) => {
+        const { connected } = this.state;
         if (!connected){
             Taro.atMessage({ message: "请先连接BLE设备...", type: "warning" });
             return;
         }
         var hex = sendText || ''; //要发送的数据
         let buffer1;
-        if (this._hexSend && hex){ //十六进制发送
-            var typedArray = new Uint8Array(regSendData(hex).map(function (h) {
-                return parseInt(h, 16)
-            }));
-            buffer1 = typedArray.buffer
-        }else{ //string发送
-            var strbuf = new Uint8Array(stringToBytes(hex));
-            buffer1 = strbuf.buffer
-        }
-        if (buffer1==null) return
-        const txlen = buffer1.byteLength;
+        const typedArray = new Uint8Array(regSendData(hex).map(function (h) {
+            return parseInt(h, 16)
+        }));
+        buffer1 = typedArray.buffer;
+
+        if (buffer1==null) return;
         Taro.writeBLECharacteristicValue({
             deviceId: this._deviceId,
             serviceId: this._serviceId,
             characteristicId: this._characteristicId,
             value: buffer1,
         }).then(() => {
-            this.setState({
-                txCount: this.state.txCount + txlen,
-                timTX:this.state.timTX + txlen
-            })
         }).catch(err => console.log(err));
-    };
-
-    changeCheckbox = (value) => {
-        this._hexSend = value.indexOf('send') > -1;
-        this._hexRec = value.indexOf('res') > -1;
-        this.setState({ checkedList: value });
-    };
-
-    changeAutoSendInv = () => {};
-
-    showSetting = () => {
-        this.setState({ showSetting: true });
-    };
-
-    closeSendSetting = () => {
-        this.setState({ showSetting: false });
-    };
-
-    changeSendText = (value) => {
-        this.setState({ sendText: value })
     };
 
     // 连接设备
@@ -197,7 +145,7 @@ export default class Index extends Component<{}, IState> {
                     connected: true,
                     connectState: "读取服务",
                     reconnect: "断开连接",
-                })
+                });
                 this.getBLEDeviceServices(deviceId);
             });
     };
@@ -261,7 +209,6 @@ export default class Index extends Component<{}, IState> {
             .catch(err => console.log('getBLEDeviceCharacteristics', err));
         // 操作之前先监听，保证第一时间获取数据
         Taro.onBLECharacteristicValueChange((characteristic) => {
-            const buf = new Uint8Array(characteristic.value);
             const nowrecHEX = ab2hex(characteristic.value);
             const recStr = ab2Str(characteristic.value);
             if (this.rxdu != characteristic.characteristicId) return;
@@ -278,46 +225,35 @@ export default class Index extends Component<{}, IState> {
             }
             this.setState({
                 receiveData: receiveData + mrecstr,
-                rxCount: this.state.rxCount + buf.length,
-                timRX: this.state.timRX + buf.length
             })
         })
     };
 
     render () {
         const {
-            checkedList, connectState, autoSendInv, showSetting,
-            rxRate, txRate, rxCount, txCount, receiveData, sendText,
-            reconnect,
+            connectState, reconnect,
         } = this.state;
         return (
             <View className='index'>
                 <AtMessage />
                 <View className='layout'>
                     <AtNavBar
-                        onClickRgIconSt={this.showSetting}
                         title={connectState}
-                        rightFirstIconType='settings'
                     />
-                    <AtNoticebar
-                        single
-                        icon='volume-plus'
-                    >
-                        RX:{rxRate}B/s, TX:{txRate}B/S
-                    </AtNoticebar>
-                    <AtNoticebar
-                        single
-                        icon='volume-plus'
-                    >
-                        RX:{rxCount}, TX:{txCount}
-                    </AtNoticebar>
                     <View className='at-row at-row__justify--around'>
                         <AtButton
                             className='btn'
-                            type='secondary'
-                            onClick={this.goclear}
+                            type='primary'
+                            onClick={this.openDevice}
                         >
-                            清屏
+                            开
+                        </AtButton>
+                        <AtButton
+                            className='btn'
+                            type='secondary'
+                            onClick={this.closeDevice}
+                        >
+                            关
                         </AtButton>
                         <AtButton
                             className='btn'
@@ -327,60 +263,8 @@ export default class Index extends Component<{}, IState> {
                             {reconnect}
                         </AtButton>
                     </View>
-                    <ScrollView
-                        className='receive'
-                    >
-                        <View>{receiveData}</View>
-                    </ScrollView>
-                    <View className='send'>
-                        <AtInput
-                            name='send'
-                            clear
-                            type='text'
-                            placeholder='发送数据'
-                            value={sendText}
-                            onChange={this.changeSendText}
-                        >
-                            <AtIcon
-                                value='repeat-play'
-                                size='30'
-                                color='#6190E8'
-                                onClick={this.goautosend}
-                            />
-                            <AtIcon
-                                value='play'
-                                size='30'
-                                color='#6190E8'
-                                onClick={this.gosend}
-                            />
-                        </AtInput>
-                    </View>
-                </View>
 
-                <AtModal
-                    isOpened={showSetting}
-                    onClose={this.closeSendSetting}
-                >
-                    <AtModalHeader>设置</AtModalHeader>
-                    <AtModalContent>
-                        <View className='at-article__h3'>收发方式</View>
-                        <AtCheckbox
-                            options={this.checkboxOption}
-                            selectedList={checkedList}
-                            onChange={this.changeCheckbox}
-                        />
-                        <View className='at-article__h3'>自动发送周期(ms)</View>
-                        <AtInputNumber
-                            type='number'
-                            min={1}
-                            max={1000000}
-                            step={100}
-                            width={370}
-                            value={autoSendInv}
-                            onChange={this.changeAutoSendInv}
-                         />
-                    </AtModalContent>
-                </AtModal>
+                </View>
             </View>
         )
     }

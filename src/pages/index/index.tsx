@@ -40,8 +40,8 @@ export default class Index extends Component<{}, IState> {
     clickTools = (item, index) => {
         const path = [
             `/pages/blue_scan/index?name=${item.value}`,
-            `/pages/other/index?name=${item.value}`,
-            `/pages/other/index?name=${item.value}`,
+            `/pages/devices/list/index?name=${item.value}`,
+            `/pages/devices/index?name=${item.value}`,
         ][index];
         Taro.navigateTo({url: path});
     };
@@ -75,7 +75,7 @@ export default class Index extends Component<{}, IState> {
                         },
                         {
                             iconInfo: { value: 'shebei', prefixClass: 'lw', size: 50, color: '#f00' },
-                            value: '开发中...'
+                            value: '设备控制'
                         },
                         {
                             iconInfo: { value: 'zhuangxiu', prefixClass: 'lw', size: 50, color: '#f00' },

@@ -6,8 +6,8 @@ import {
     AtModalContent, AtModalAction, AtModal,
     AtInput, AtMessage,
 } from 'taro-ui'
-import { isUUID, strToUUID } from '../../utils/helper';
-import './index.scss'
+import { isUUID, strToUUID } from '../../../utils/helper';
+import './index.scss';
 
 interface Device {
     name: string,
@@ -27,7 +27,7 @@ interface IState {
 }
 export default class Index extends Component<{}, IState> {
     config: Config = {
-        navigationBarTitleText: '蓝牙设备扫描'
+        navigationBarTitleText: '设备控制'
     };
 
     _discoveryStarted: boolean = false;
@@ -145,7 +145,7 @@ export default class Index extends Component<{}, IState> {
 
     deviceDetail = (deviceId, name) => {
         this.stopBluetoothDevicesDiscovery()
-        Taro.navigateTo({url: `/pages/blue_helper/index?deviceId=${deviceId}&name=${name}`});
+        Taro.navigateTo({url: `/pages/devices/item/index?deviceId=${deviceId}&name=${name}`});
     };
 
     openUUIDSettingDialog = () => {
