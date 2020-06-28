@@ -1,7 +1,7 @@
 {
   "miniprogramRoot": "./dist",
-  "projectname": "myApp",
-  "description": "罗网科技大宝剑",
+  "projectname": "luowang01",
+  "description": "罗网小程序",
   "appid": "touristappid",
   "setting": {
     "urlCheck": true,
