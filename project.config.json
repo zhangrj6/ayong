@@ -2,7 +2,7 @@
   "miniprogramRoot": "./dist",
   "projectname": "luowang01",
   "description": "罗网小程序",
-  "appid": "touristappid",
+  "appid": "wxdb285a08ea40a78d",
   "setting": {
     "urlCheck": true,
     "es6": false,
