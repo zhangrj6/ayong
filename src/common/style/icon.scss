@@ -1,0 +1,25 @@
+@font-face {
+  font-family: 'lwicon';  /* project id 1307911 */
+  src: url('//at.alicdn.com/t/font_1307911_rvvkk0mvo2l.eot');
+  src: url('//at.alicdn.com/t/font_1307911_rvvkk0mvo2l.eot?#iefix') format('embedded-opentype'),
+  url('//at.alicdn.com/t/font_1307911_rvvkk0mvo2l.woff2') format('woff2'),
+  url('//at.alicdn.com/t/font_1307911_rvvkk0mvo2l.woff') format('woff'),
+  url('//at.alicdn.com/t/font_1307911_rvvkk0mvo2l.ttf') format('truetype'),
+  url('//at.alicdn.com/t/font_1307911_rvvkk0mvo2l.svg#lwicon') format('svg');
+}
+
+.lw {
+  display: inline-block;
+  /* 以下的 font 与上面 @font-face 的 font-family 要一致*/
+  font: normal normal normal 14px/1 lwicon;
+  font-size: inherit;
+  text-rendering: auto;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.lw-chuankou:before{ content: '\ec79' }
+.lw-shebei:before{ content: '\ec76' }
+.lw-zhuangxiu:before{ content: '\ec50' }
+.lw-lanya:before{ content: '\ec4a'}
+

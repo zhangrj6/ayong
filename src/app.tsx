@@ -1,6 +1,7 @@
 import Taro, { Component, Config } from '@tarojs/taro'
+import 'taro-ui/dist/style/index.scss'
+import config from 'common/env/config'
 import Index from './pages/index'
-
 import './app.scss'
 
 // 如果需要在 h5 环境中开启 React Devtools
@@ -11,7 +12,16 @@ import './app.scss'
 
 class App extends Component {
 
-  componentDidMount () {}
+  componentDidMount () {
+    if (!wx.cloud) {
+      console.error('请使用 2.2.3 或以上的基础库以使用云能力')
+    } else {
+      wx.cloud.init({
+        env: config.envId,
+        traceUser: true,
+      })
+    }
+  }
 
   componentDidShow () {}
 
