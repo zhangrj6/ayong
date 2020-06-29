@@ -1,5 +1,6 @@
 import Taro, { useState } from '@tarojs/taro'
 import { View, Image } from '@tarojs/components'
+// @ts-ignore 已配置路径别名
 import BlueScan from "component/blue-scan"
 import { AtTabBar } from 'taro-ui'
 import './index.scss'
@@ -14,15 +15,11 @@ function Index() {
   const [current, setCurrent] = useState(TABBAR_ENUM.device);
   return (
       <View className='index'>
-          { current == TABBAR_ENUM.home &&
-            <Image
-                src="cloud://luowang01-05e98.6c75-luowang01-05e98-1302520003/eu5lJs.png"
-                style="height: 100vh;width: 100vw;"
-            />
-          }
-          { current == TABBAR_ENUM.device &&
-            <BlueScan />
-          }
+          <Image
+              src="cloud://luowang01-05e98.6c75-luowang01-05e98-1302520003/eu5lJs.png"
+              style={`height: calc(100vh - 70px);width: 100vw;${current != TABBAR_ENUM.home ? 'display: none' : ''}`}
+          />
+          <BlueScan display={current == TABBAR_ENUM.device} />
           <AtTabBar
               fixed
               tabList={[
