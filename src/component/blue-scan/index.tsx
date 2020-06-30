@@ -1,9 +1,9 @@
-import { View } from "@tarojs/components";
+import { View, Button } from "@tarojs/components";
 import {
     AtButton, AtNoticebar, AtList,
     AtListItem, AtModalHeader, AtRadio,
     AtModalContent, AtModalAction, AtModal,
-    AtInput, AtMessage,
+    AtInput, AtMessage, AtIcon,
 } from 'taro-ui'
 import './index.scss'
 
@@ -16,31 +16,32 @@ function BlueScan({ display }) {
             <AtMessage />
             <AtNoticebar>已发现 {1} 个BLE设备</AtNoticebar>
             <View className='btn-group'>
-                <AtButton
-                    className='btn'
-                    type='primary'
+                <Button
+                    className="scan-btn setting"
+                    onClick={() => {}}
+                >
+                    <AtIcon prefixClass='lw' value='setting' size='16' color='#6190E8' />
+                </Button>
+                <Button
+                    className='scan-btn'
+                    onClick={() => {}}
+                >
+                    停止扫描
+                </Button>
+                <Button
+                    className='scan-btn main'
                     loading={true}
                     onClick={() => {}}
                 >
                     扫描设备
-                </AtButton>
-                <AtButton
-                    className='btn'
-                    type='secondary'
-                    onClick={() => {}}
-                >
-                    停止扫描
-                </AtButton>
-                <AtButton
-                    className='btn'
-                    type='secondary'
-                    onClick={() => {}}
-                >
-                    设置UUID
-                </AtButton>
+                </Button>
             </View>
         </View>
     )
+}
+
+BlueScan.options = {
+    addGlobalClass: true
 }
 
 export default BlueScan;

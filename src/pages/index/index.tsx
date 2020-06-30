@@ -22,6 +22,8 @@ function Index() {
           <BlueScan display={current == TABBAR_ENUM.device} />
           <AtTabBar
               fixed
+              fontSize={10}
+              iconSize={20}
               tabList={[
                   { title: '控制器', iconType: 'equalizer' },
                   { title: '罗网', iconType: 'user' },
