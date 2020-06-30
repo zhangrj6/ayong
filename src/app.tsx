@@ -1,6 +1,6 @@
 import Taro, { Component, Config } from '@tarojs/taro'
 import 'taro-ui/dist/style/index.scss'
-import config from 'common/env/config'
+import config from '@common/env/config'
 import Index from './pages/index'
 import './app.scss'
 

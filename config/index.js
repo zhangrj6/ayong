@@ -80,8 +80,8 @@ const config = {
     }
   },
   alias: {
-    'common': path.resolve(__dirname, '..', 'src/common'),
-    'component': path.resolve(__dirname, '..', 'src/component'),
+    '@common': path.resolve(__dirname, '..', 'src/common'),
+    '@components': path.resolve(__dirname, '..', 'src/components'),
   }
 }
 

@@ -1,17 +1,28 @@
-.index-true{
+@import "../../common/style/color";
+
+.index-true {
   .btn-group {
     display: flex;
     justify-content: space-around;
+    position: fixed;
+    bottom: 104px;
+    width: 100vw;
     .scan-btn {
       margin: 0;
       flex-grow: 1;
       border-radius: 0;
       font-size: 28px;
+      color: white;
+      background-color: $c-sub-red;
       &:after {
         border: none;
       }
       &.setting {
-        width: 30px;
+        flex-grow: 0;
+        background-color: $c-mian-l;
+      }
+      &.main {
+        background-color: $c-sub-green;
       }
     }
   }

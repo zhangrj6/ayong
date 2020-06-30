@@ -1,7 +1,7 @@
 import Taro, { useState } from '@tarojs/taro'
 import { View, Image } from '@tarojs/components'
 // @ts-ignore 已配置路径别名
-import BlueScan from "component/blue-scan"
+import BlueScan from "@components/blue-scan"
 import { AtTabBar } from 'taro-ui'
 import './index.scss'
 
@@ -9,7 +9,7 @@ import './index.scss'
 const TABBAR_ENUM = {
     home: 1,
     device: 0,
-}
+};
 
 function Index() {
   const [current, setCurrent] = useState(TABBAR_ENUM.device);
