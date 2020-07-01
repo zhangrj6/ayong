@@ -38,7 +38,8 @@ class App extends Component {
    */
   config: Config = {
     pages: [
-      'pages/index/index'
+      'pages/index/index',
+      'pages/blue-tooth/device/index'
     ],
     window: {
       backgroundTextStyle: 'light',

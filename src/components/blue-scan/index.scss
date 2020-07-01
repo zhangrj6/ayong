@@ -1,11 +1,15 @@
 @import "../../common/style/color";
 
 .index-true {
+  .scroll-view {
+    height: calc(100vh - 250px);
+    overflow-y: auto;
+  }
   .btn-group {
     display: flex;
     justify-content: space-around;
     position: fixed;
-    bottom: 104px;
+    bottom: 117px;
     width: 100vw;
     .scan-btn {
       margin: 0;
