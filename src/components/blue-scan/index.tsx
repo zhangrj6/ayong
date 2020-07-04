@@ -2,7 +2,8 @@ import { useState } from "@tarojs/taro";
 import { View, Button } from "@tarojs/components";
 import { AtNoticebar, AtList, AtListItem, AtMessage, AtIcon } from 'taro-ui'
 import SetUuid from "@components/set-uuid"
-import { defaultUuid } from '@common/const/uuid';
+import { defaultUuid } from '@common/const/uuid'
+import { BlueToothErrorMsg } from '@common/const/error-msg'
 import './index.scss'
 
 
@@ -10,6 +11,25 @@ function BlueScan({ display }) {
     const [loadingScan, setLoadingScan] = useState(false); // 是否正在扫描设备中
     const [showSetting, setShowSetting] = useState(false); // 是否显示模组设置
     const [uuid, setUuid] = useState(defaultUuid);
+
+    const scanBlueToothDevices = () => {
+        setLoadingScan(true);
+        Taro.openBluetoothAdapter()
+            .then((res) => {
+                console.log('openBluetoothAdapter success', res)
+                // this.startBluetoothDevicesDiscovery()
+            })
+            .catch((err) => {
+                if (err.errCode === BlueToothErrorMsg.not_available) {
+                    Taro.onBluetoothAdapterStateChange((res) => {
+                        console.log('onBluetoothAdapterStateChange', res)
+                        if (res.available) {
+                            // this.startBluetoothDevicesDiscovery()
+                        }
+                    })
+                }
+            })
+    }
 
     return (
         <View className={`index-${display}`}>
@@ -54,7 +74,7 @@ function BlueScan({ display }) {
                 <Button
                     className='scan-btn main'
                     loading={loadingScan}
-                    onClick={() => {}}
+                    onClick={scanBlueToothDevices}
                 >
                     扫描设备
                 </Button>

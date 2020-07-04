@@ -1,5 +1,6 @@
 import Taro, { Component, Config } from '@tarojs/taro'
 import 'taro-ui/dist/style/index.scss'
+// @ts-ignore
 import config from '@common/env/config'
 import Index from './pages/index'
 import './app.scss'
@@ -13,10 +14,10 @@ import './app.scss'
 class App extends Component {
 
   componentDidMount () {
-    if (!wx.cloud) {
+    if (!Taro.cloud) {
       console.error('请使用 2.2.3 或以上的基础库以使用云能力')
     } else {
-      wx.cloud.init({
+      Taro.cloud.init({
         env: config.envId,
         traceUser: true,
       })
@@ -47,7 +48,7 @@ class App extends Component {
       navigationBarTitleText: 'WeChat',
       navigationBarTextStyle: 'black'
     }
-  }
+  };
 
   // 在 App 类中的 render() 函数没有实际作用
   // 请勿修改此函数
@@ -58,4 +59,4 @@ class App extends Component {
   }
 }
 
-Taro.render(<App />, document.getElementById('app'))
+Taro.render(<App />, document.getElementById('app'));
