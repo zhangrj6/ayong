@@ -9,13 +9,13 @@
     display: flex;
     justify-content: space-around;
     position: fixed;
-    bottom: 117px;
+    bottom: 114px;
     width: 100vw;
     .scan-btn {
       margin: 0;
       flex-grow: 1;
       border-radius: 0;
-      font-size: 28px;
+      font-size: 36px;
       color: white;
       background-color: $c-sub-red;
       &:after {
@@ -27,6 +27,9 @@
       }
       &.main {
         background-color: $c-sub-green;
+      }
+      &.disable {
+        background-color: $c-sub-gray;
       }
     }
   }

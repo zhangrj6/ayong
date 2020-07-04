@@ -3,6 +3,8 @@ import { View } from "@tarojs/components";
 import { AtFloatLayout, AtInput, AtRadio } from "taro-ui";
 // @ts-ignore
 import { MODE_TYPE, defaultUuid, bt16Uuid } from "@common/const/uuid";
+// @ts-ignore
+import { strToUUID } from "@common/utils/data-handle";
 
 /**
  * 设置uuid，自定义uuid的修改需要持久化
@@ -18,17 +20,17 @@ function SetUuid({ showSetting= false, onChangeUuid }) {
         // 从持久化数据中重置数据
         const modelType = Taro.getStorageSync('modeType');
         const customUuid = Taro.getStorageSync('customUuid');
-        setModeType(modelType);
+        setModeType(modelType || MODE_TYPE.default);
         setCustomUuid(customUuid || defaultUuid);
     }, []);
 
-    const changeUuidInput = (value, event) => {
+    const changeUuidInput = (_value, event) => {
         const id = event.currentTarget.id;
-        const uuid = event.currentTarget.value;
+        const uuid = strToUUID(event.currentTarget.value);
         if (uuid !== customUuid[id]) {
             setCustomUuid({ ...customUuid, [id]: uuid })
         }
-        return value
+        return uuid
     };
 
     const updateUuidInfoAtClose = () => {

@@ -5,7 +5,6 @@ import { AtIcon } from 'taro-ui'
 
 function Device() {
     const router = useRouter();
-    console.log(router);
     return (
         <View>
             <View className="indicator-lights">
