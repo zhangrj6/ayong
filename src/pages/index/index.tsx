@@ -17,7 +17,7 @@ function Index() {
       <View className='index'>
           <Image
               src="cloud://luowang01-05e98.6c75-luowang01-05e98-1302520003/eu5lJs.png"
-              style={`height: calc(100vh - 70px);width: 100vw;${current != TABBAR_ENUM.home ? 'display: none' : ''}`}
+              style={`height: calc(100vh - 60px);width: 100vw;${current != TABBAR_ENUM.home ? 'display: none' : ''}`}
           />
           <BlueScan display={current == TABBAR_ENUM.device} />
           <AtTabBar
