@@ -38,7 +38,7 @@ function SetUuid({ showSetting= false, onChangeUuid }) {
         Taro.setStorageSync('modeType', modeType);
         if (modeType === MODE_TYPE.custom) Taro.setStorageSync('customUuid', customUuid);
         const uuid = {
-            [MODE_TYPE.defaultUuid]: defaultUuid,
+            [MODE_TYPE.default]: defaultUuid,
             [MODE_TYPE.bt16]: bt16Uuid,
             [MODE_TYPE.custom]: customUuid,
         }[modeType];

@@ -36,7 +36,9 @@ function BlueScan({ display }) {
     // 修改首次渲染控制
     useEffect(() => setFirstRender(false), []);
 
-    console.log('devices', devices)
+    // 持久化service uuid
+    useEffect(() => Taro.setStorageSync('uuid', uuid), [uuid]);
+
     return (
         <View className={`index-${display}`}>
             <AtMessage />
@@ -61,8 +63,9 @@ function BlueScan({ display }) {
                             note={item.deviceId}
                             iconInfo={{ value: 'lanya', prefixClass: 'lw', size: 40, color: '#346fc2' }}
                             onClick={() => {
-                                stopDevicesDiscovery();
-                                Taro.navigateTo({url: `/pages/blue-tooth/device/index?deviceId=${111}&name=${222}`});
+                                Taro.navigateTo({
+                                    url: `/pages/blue-tooth/device/index?deviceId=${item.deviceId}&name=${item.name}`
+                                });
                             }}
                         />
                     ))}

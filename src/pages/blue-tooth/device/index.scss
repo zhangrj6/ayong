@@ -1,0 +1,45 @@
+@import "~@common/style/color";
+
+.device {
+  .connect-btn {
+    position: fixed;
+    bottom: 0;
+    width: 100vw;
+    border-radius: 0;
+    color: white;
+    font-size: 36px;
+    background-color: $c-sub-red;
+    &:after {
+      border: none;
+    }
+    &.on {
+      background-color: $c-sub-green;
+    }
+  }
+}
+
+.control-panel {
+  border-radius: 24px;
+  border: 8px solid $c-mian-l;
+  width: 80vw;
+  display: flex;
+  flex-direction: column;
+  margin: 8px auto;
+  .indicator-lights {
+    display: flex;
+    justify-content: center;
+    margin-top: 16px;
+    .light-item {
+      display: flex;
+      align-items: center;
+      flex-direction: column;
+      font-size: 28px;
+      margin: 0 36px;
+    }
+  }
+}
+/* 复写原组件样式 */
+.at-switch {
+  margin-bottom: 0;
+  border-radius: 24px;
+}
