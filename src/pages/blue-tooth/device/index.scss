@@ -3,6 +3,9 @@
 .device {
   .connect-btn {
     position: fixed;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     bottom: 0;
     width: 100vw;
     border-radius: 0;
@@ -14,6 +17,17 @@
     }
     &.on {
       background-color: $c-sub-green;
+    }
+    .btn-handle {
+      font-size: 32px;
+      line-height: 32px;
+      padding-top: 16px;
+    }
+    .btn-status {
+      font-size: 20px;
+      line-height: 20px;
+      padding-top: 8px;
+      padding-bottom: 16px;
     }
   }
 }
@@ -38,8 +52,19 @@
     }
   }
 }
+
+.number-input {
+  display: flex;
+  input {
+    flex-grow: 1;
+  }
+}
+
 /* 复写原组件样式 */
 .at-switch {
   margin-bottom: 0;
   border-radius: 24px;
+}
+.at-modal__content {
+  min-height: 0;
 }

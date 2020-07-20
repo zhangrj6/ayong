@@ -11,7 +11,7 @@ function BlueScan({ display }) {
     const [firstRender, setFirstRender] = useState(true); // 首次渲染控制
     const [showSetting, setShowSetting] = useState(false); // 是否显示模组设置
     const [uuid, setUuid] = useState(defaultUuid);
-    const [available, discovering, startDevicesDiscovery, stopDevicesDiscovery, devices] = useBlueToothAdapter();
+    const {available, discovering, startDevicesDiscovery, stopDevicesDiscovery, devices} = useBlueToothAdapter();
 
     // 蓝牙适配器状态开关改变时的提示
     useEffect(() => {

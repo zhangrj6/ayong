@@ -23,6 +23,11 @@ export function ab2hex(buffer) {
     return (hexArr.join('')).toUpperCase();
 }
 
+export function ab2Str(arrayBuffer){
+    let unit8Arr = new Uint8Array(arrayBuffer);
+    return String.fromCharCode.apply(null, unit8Arr)
+}
+
 export function regSendData(hex) {
     return hex.match(/[\da-f]{2}/gi);
 }

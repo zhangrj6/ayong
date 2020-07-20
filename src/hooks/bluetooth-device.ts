@@ -1,5 +1,6 @@
 import Taro, { useState, useEffect, useCallback, useMemo } from "@tarojs/taro"
 import { ab2hex, regSendData } from '@common/utils/data-handle';
+import { useBluetoothDataProcess } from '@hooks/bluetooth-data-process';
 
 export function useBlueToothDevice() {
     const [connected, setConnected] = useState(false);
@@ -7,6 +8,9 @@ export function useBlueToothDevice() {
     const [deviceId, setDeviceId] = useState('');
     const [serviceId, setServiceId] = useState('');
     const [characterId, setCharacterId] = useState('');
+    const [receiveData, setReceiveData] = useState('');
+
+    const { resultData, processReceiveData } = useBluetoothDataProcess();
 
     const uuid = useMemo(() => {
         const uuid = Taro.getStorageSync('uuid');
@@ -17,10 +21,16 @@ export function useBlueToothDevice() {
         }
     }, []);
 
+    //
+    useEffect(() => {
+        setReceiveData(resultData);
+    }, [resultData]);
+
     const disconnectDevice = useCallback((deviceId) => {
         Taro.closeBLEConnection({ deviceId })
     }, [])
 
+    // TODO 函数过长，按阶段拆分
     const connectDevice = useCallback((deviceId) => {
         Taro.createBLEConnection({ deviceId })
             .then(() => {
@@ -40,7 +50,6 @@ export function useBlueToothDevice() {
                             // 存在则继续查询特征值是否匹配
                             Taro.getBLEDeviceCharacteristics({ deviceId, serviceId: service.uuid })
                                 .then(resCharacteristics => {
-                                    console.log('resCharacteristics', resCharacteristics)
                                     resCharacteristics.characteristics.forEach(item => {
                                         // 设置写操作特征值
                                         if (item.properties.write && item.uuid === uuid.txduuid) {
@@ -56,18 +65,27 @@ export function useBlueToothDevice() {
                                             }).then(() => {
                                                 setConnected(true);
                                                 setMessage({ message: '连接成功', type: 'success' })
-                                            })
+                                            }).catch(err => console.error('开启特征值notify功能', err))
                                         }
                                     })
                                 })
-                                .catch(err => console.log('getBLEDeviceCharacteristics', err));
+                                .catch(err => console.error('getBLEDeviceCharacteristics', err));
+                            // 获取设备推送数据
+                            Taro.onBLECharacteristicValueChange(res => {
+                                const nowRecHex = ab2hex(res.value);
+                                if (uuid.rxduuid !== res.characteristicId) return;
+                                // 数据处理
+                                processReceiveData(nowRecHex)
+                            })
                         } else {
                             // 不存在则关闭连接
                             Taro.closeBLEConnection({ deviceId })
                             setMessage({ message: '请确认Service UUID是否设置正确或重新连接', type: 'error' })
                         }
                     })
+                    .catch(err => console.error('获取设备服务列表', err))
             })
+            .catch(err => console.error('连接蓝牙设备', err))
     }, []);
 
     const sendCommander = useCallback((command) => {
@@ -82,44 +100,23 @@ export function useBlueToothDevice() {
         }));
         buffer1 = typedArray.buffer;
         if (buffer1 === null) return;
+        console.log('已发送')
         Taro.writeBLECharacteristicValue({
             deviceId,
             serviceId,
             characteristicId: characterId,
             value: buffer1,
         })
-            .then(res => console.log(res))
-            .catch(err => console.log(err));
+            .then(res => console.log('写入特征值', res))
+            .catch(err => console.error('写入特征值', err));
     }, [deviceId, serviceId, characterId]);
 
-    const getCharacteristics = useCallback((deviceId, serviceId) => {
-        // 操作之前先监听，保证第一时间获取数据
-        Taro.onBLECharacteristicValueChange((characteristic) => {
-            const nowrecHEX = ab2hex(characteristic.value);
-            const recStr = ab2Str(characteristic.value);
-            if (this.rxdu != characteristic.characteristicId) return;
-            if (!this._readyRec) return;
-            let mrecstr
-            if (this._hexRec){
-                mrecstr = nowrecHEX
-            }else{
-                mrecstr = recStr
-            }
-            let receiveData = this.state.receiveData;
-            if (this.state.receiveData.length>3000){
-                receiveData = receiveData.substring(mrecstr.length, receiveData.length)
-            }
-            this.setState({
-                receiveData: receiveData + mrecstr,
-            })
-        })
-    }, []);
-
-    return [
+    return {
         connected,
         message,
         connectDevice,
         disconnectDevice,
         sendCommander,
-    ]
+        receiveData,
+    }
 }

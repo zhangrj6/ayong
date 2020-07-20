@@ -42,7 +42,9 @@ export function useBlueToothAdapter({ duration = 20000 } = {}) {
     // 停止搜索蓝牙设备
     const stopDevicesDiscovery = useCallback(() => {
         Taro.stopBluetoothDevicesDiscovery();
-        // 目前还未支持关闭蓝牙设备搜索监听的API
+        if (wx.offBluetoothDeviceFound) {
+            wx.offBluetoothDeviceFound()
+        }
     }, []);
 
     // 搜索蓝牙设备
@@ -71,11 +73,11 @@ export function useBlueToothAdapter({ duration = 20000 } = {}) {
             });
     }, []);
 
-    return [
+    return {
         available,
         discovering,
         startDevicesDiscovery,
         stopDevicesDiscovery,
         devices,
-    ]
+    }
 }

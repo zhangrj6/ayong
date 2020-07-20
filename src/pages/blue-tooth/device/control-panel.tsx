@@ -4,7 +4,7 @@ import { AtIcon, AtSwitch } from "taro-ui";
 import { commandCodeMap } from '@common/const/command-code';
 import './index.scss';
 
-function ControlPanel({ sendCommand }) {
+function ControlPanel({ sendCommand, connected }) {
     return (
         <View className="control-panel">
             <View className="indicator-lights">
@@ -23,10 +23,11 @@ function ControlPanel({ sendCommand }) {
             </View>
             <View className="switch-group">
                 <View>
-                    <AtSwitch title="开关机" onChange={(value) => sendCommand(value ? commandCodeMap.openDevice : commandCodeMap.closeDevice)} />
-                </View>
-                <View>
-                    <AtSwitch title="开关枪" border={false} onChange={() => {}} />
+                    <AtSwitch
+                        disabled={!connected}
+                        title="开关机"
+                        onChange={(value) => sendCommand(value ? commandCodeMap.openDevice : commandCodeMap.closeDevice)}
+                    />
                 </View>
             </View>
         </View>
