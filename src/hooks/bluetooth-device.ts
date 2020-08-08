@@ -88,6 +88,7 @@ export function useBlueToothDevice() {
             .catch(err => console.error('连接蓝牙设备', err))
     }, []);
 
+    // 向设备发送指令
     const sendCommander = useCallback((command) => {
         if (!connected){
             setMessage({ message: "请先连接BLE设备...", type: "warning" });

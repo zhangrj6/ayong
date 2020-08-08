@@ -1,11 +1,11 @@
 @font-face {
   font-family: 'lwicon';  /* project id 1307911 */
-  src: url('//at.alicdn.com/t/font_1307911_1p6vtbcktnr.eot');
-  src: url('//at.alicdn.com/t/font_1307911_1p6vtbcktnr.eot?#iefix') format('embedded-opentype'),
-  url('//at.alicdn.com/t/font_1307911_1p6vtbcktnr.woff2') format('woff2'),
-  url('//at.alicdn.com/t/font_1307911_1p6vtbcktnr.woff') format('woff'),
-  url('//at.alicdn.com/t/font_1307911_1p6vtbcktnr.ttf') format('truetype'),
-  url('//at.alicdn.com/t/font_1307911_1p6vtbcktnr.svg#lwicon') format('svg');
+  src: url('//at.alicdn.com/t/font_1307911_ssogzw6h4qg.eot');
+  src: url('//at.alicdn.com/t/font_1307911_ssogzw6h4qg.eot?#iefix') format('embedded-opentype'),
+  url('//at.alicdn.com/t/font_1307911_ssogzw6h4qg.woff2') format('woff2'),
+  url('//at.alicdn.com/t/font_1307911_ssogzw6h4qg.woff') format('woff'),
+  url('//at.alicdn.com/t/font_1307911_ssogzw6h4qg.ttf') format('truetype'),
+  url('//at.alicdn.com/t/font_1307911_ssogzw6h4qg.svg#lwicon') format('svg');
 }
 
 .lw {
@@ -27,5 +27,8 @@
 /* 额定电流 */
 .lw-rated-current:before{ content: '\e665'}
 .lw-delay-shutdown:before{ content: '\e600'}
+.lw-delay-startup:before{ content: '\e601'}
+.lw-monitor-period:before{ content: '\e6d5'}
+.lw-standby-shutdown:before{ content: '\e61c'}
 
 

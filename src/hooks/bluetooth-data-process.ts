@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "@tarojs/taro";
-import { instructionParse } from "@common/const/instruction-parse";
+import { instructionParseStrategy } from "@common/utils/instruction-decode";
 
 export function useBluetoothDataProcess() {
     const [loading, setLoading] = useState(false);
@@ -11,10 +11,11 @@ export function useBluetoothDataProcess() {
     })
     const [resultData, setResultData] = useState({});
 
+    // 解析指令
     const parseInstruction = useCallback(() => {
         // 当数据处理完毕，且所要处理的数据有效不为空时，再进行指令解析
         if (receiveTmp.receiveData.length > 0) {
-            const result = instructionParse(receiveTmp.receiveData);
+            const result = instructionParseStrategy(receiveTmp.receiveData);
             console.log('result', result);
             setResultData(result);
         }
@@ -26,7 +27,7 @@ export function useBluetoothDataProcess() {
         if (receiveTmp.dataLength === 0) {
             const dataLength = parseInt(res.substring(3,5), 16);
             receiveTmp.receiveData = res;
-            // 当次数据未获取完毕
+            // 判断当次数据是否获取完毕
             if (dataLength > curRecLength) {
                 receiveTmp.dataLength = dataLength;
                 receiveTmp.receivedDataLength = curRecLength;

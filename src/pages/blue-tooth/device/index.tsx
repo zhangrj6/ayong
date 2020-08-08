@@ -1,5 +1,6 @@
-import Taro, {useState, useEffect, useRouter, useCallback} from "@tarojs/taro";
-import {Button, View} from "@tarojs/components";
+import Taro, { useState, useEffect, useRouter, useCallback } from "@tarojs/taro";
+import { Button, View } from "@tarojs/components";
+import { AtMessage } from 'taro-ui';
 import { useBlueToothDevice } from "@hooks/bluetooth-device";
 import ControlPanel from "./control-panel";
 import ConfigParams from "./config-params";
@@ -32,6 +33,7 @@ function Device() {
 
     return (
         <View className="device">
+            <AtMessage />
             <ControlPanel connected={connected} sendCommand={sendCommander} />
             <ConfigParams connected={connected} sendCommand={sendCommander} receiveData={receiveData} />
             <Button

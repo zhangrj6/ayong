@@ -1,10 +1,11 @@
 import Taro, {useState, useEffect, useCallback} from "@tarojs/taro";
 import {
-    AtAccordion, AtList, AtListItem, AtInputNumber,
+    AtAccordion, AtList, AtListItem, AtInputNumber, AtRadio,
     AtModal, AtModalHeader, AtModalContent, AtModalAction,
 } from 'taro-ui'
 import { View, Button } from '@tarojs/components'
-import { commandCodeMap } from '@common/const/command-code';
+import { commandCodeMap, InstructionMap } from '@common/const/command-code';
+import { genSetRatedCurrentCode } from '@common/utils/instruction-encode';
 
 interface IModalContent {
     component: string,
@@ -16,9 +17,16 @@ function ConfigParams({ connected, sendCommand, receiveData }) {
     const [open, setOpen] = useState(false);
     const [ratedCurrent, setRatedCurrent] = useState(15);
     const [delayShutdown, setDelayShutdown] = useState(4);
+    const [delayStartup, setDelayStartup] = useState(0.5);
+    const [monitorPeriod, setMonitorPeriod] = useState(8);
+    const [standbyShutdown, setStandbyShutdown] = useState(2);
     const [showModal, setShowModal] = useState(false);
     const [modalHeader, setModalHeader] = useState('');
-    const [modalContent, setModalContent] = useState<IModalContent>({});
+    const [modalContent, setModalContent] = useState<IModalContent>({
+        param: {},
+        command: () => {},
+        component: ''
+    });
 
     // 读取参数信息
     useEffect(() => {
@@ -28,10 +36,16 @@ function ConfigParams({ connected, sendCommand, receiveData }) {
     }, [connected]);
 
     useEffect(() => {
-        // TODO 判断返回指令
         if (receiveData.data) {
-            setDelayShutdown(receiveData.data.delayShutdown);
-            setRatedCurrent(receiveData.data.ratedCurrent);
+            switch (receiveData.id) {
+                case InstructionMap.SET_RATED_CURRENT:
+                    setRatedCurrent(receiveData.data.ratedCurrent);
+                    Taro.atMessage({ message: `${modalHeader}设置成功`, type: 'success' });
+                    break;
+                default:
+                    setDelayShutdown(receiveData.data.delayShutdown);
+                    setRatedCurrent(receiveData.data.ratedCurrent);
+            }
         }
     }, [receiveData]);
 
@@ -50,31 +64,97 @@ function ConfigParams({ connected, sendCommand, receiveData }) {
         setModalHeader('额定工作电流(A)');
         setModalContent({
             component: 'numberInput',
-            command: () => {},
+            command: genSetRatedCurrentCode,
             param: {
                 min: 1,
-                max: 100,
+                max: 50,
                 step: 0.1,
                 value: ratedCurrent,
             }
         })
         setShowModal(true);
     }, [ratedCurrent]);
-    // 修改关机延时
+    // 修改关枪延时关机,0,3,5,8,10/
     const changeDelayShutdown = useCallback(() => {
-        setModalHeader('关枪延时关机(s)');
+        setModalHeader('关枪延时关机(秒)');
         setModalContent({
-            component: 'numberInput',
-            command: () => {},
+            component: 'radio',
+            command: (e) => {
+            },
             param: {
-                min: 0,
-                max: 240,
-                step: 1,
+                options: [
+                    { label: '不 延 时', value: 0 },
+                    { label: '延时 3 秒', value: 3, desc: '推荐设置' },
+                    { label: '延时 5 秒', value: 5 },
+                    { label: '延时 8 秒', value: 8 },
+                    { label: '延时 10秒', value: 10 },
+                ],
                 value: delayShutdown,
             }
         })
         setShowModal(true);
     }, [delayShutdown]);
+    // 修改开枪延时开机
+    const changeDelayStartup = useCallback(() => {
+        setModalHeader('开枪延时开机(秒)');
+        setModalContent({
+            component: 'radio',
+            command: (e) => {
+            },
+            param: {
+                options: [
+                    { label: '不 延 时', value: 0 },
+                    { label: '延时0.5秒', value: 0.5, desc: '推荐设置' },
+                    { label: '延时 1 秒', value: 1 },
+                    { label: '延时1.5秒', value: 1.5 },
+                    { label: '延时 2 秒', value: 2 },
+                ],
+                value: delayStartup,
+            }
+        })
+        setShowModal(true);
+    }, [delayStartup]);
+
+    // 修改实时监测周期
+    const changeMonitorPeriod = useCallback(() => {
+        setModalHeader('实时监测周期(分钟)');
+        setModalContent({
+            component: 'radio',
+            command: (e) => {
+            },
+            param: {
+                options: [
+                    { label: '2 分钟', value: 2 },
+                    { label: '5 分钟', value: 5 },
+                    { label: '8 分钟', value: 8, desc: '推荐设置' },
+                    { label: '15分钟', value: 15 },
+                    { label: '25分钟', value: 25 },
+                ],
+                value: monitorPeriod,
+            }
+        })
+        setShowModal(true);
+    }, [monitorPeriod]);
+    // 修改自动关机时间
+    const changeStandbyShutdown = useCallback(() => {
+        setModalHeader('待机自动关机(小时)');
+        setModalContent({
+            component: 'radio',
+            command: (e) => {
+            },
+            param: {
+                options: [
+                    { label: '不 启 用', value: 0 },
+                    { label: '0.5 小时', value: 0.5 },
+                    { label: ' 1 小 时', value: 1 },
+                    { label: ' 2 小 时', value: 2, desc: '推荐设置' },
+                    { label: ' 4 小 时', value: 4 },
+                ],
+                value: standbyShutdown,
+            }
+        })
+        setShowModal(true);
+    }, [standbyShutdown]);
 
 
     return (
@@ -96,8 +176,26 @@ function ConfigParams({ connected, sendCommand, receiveData }) {
                     <AtListItem
                         title='关枪延时关机'
                         iconInfo={{ size: 20, color: '#346fc2', prefixClass: 'lw', value: 'delay-shutdown' }}
-                        extraText={`${delayShutdown}s`}
+                        extraText={`${delayShutdown}秒`}
                         onClick={changeDelayShutdown}
+                    />
+                    <AtListItem
+                        title='开枪延时开机'
+                        iconInfo={{ size: 20, color: '#346fc2', prefixClass: 'lw', value: 'delay-startup' }}
+                        extraText={`${delayShutdown}秒`}
+                        onClick={changeDelayStartup}
+                    />
+                    <AtListItem
+                        title='实时监测周期'
+                        iconInfo={{ size: 20, color: '#346fc2', prefixClass: 'lw', value: 'monitor-period' }}
+                        extraText={`${delayShutdown}分钟`}
+                        onClick={changeMonitorPeriod}
+                    />
+                    <AtListItem
+                        title='待机自动关机'
+                        iconInfo={{ size: 20, color: '#346fc2', prefixClass: 'lw', value: 'standby-shutdown' }}
+                        extraText={`${delayShutdown}小时`}
+                        onClick={changeStandbyShutdown}
                     />
                 </AtList>
             </AtAccordion>
@@ -116,10 +214,22 @@ function ConfigParams({ connected, sendCommand, receiveData }) {
                             onChange={changeNumberInput}
                         />
                     }
+                    { modalContent.component === 'radio' &&
+                        <AtRadio
+                            options={modalContent.param.options}
+                            value={modalContent.param.value}
+                            onClick={changeNumberInput}
+                        />
+                    }
                 </AtModalContent>
                 <AtModalAction>
                     <Button onClick={() => setShowModal(false)}>取消</Button>
-                    <Button onClick={() => {}}>确定</Button>
+                    <Button onClick={() => {
+                        const value = modalContent.param.value;
+                        sendCommand(modalContent.command(value));
+                        Taro.atMessage({ message: `设置${modalHeader}` })
+                        setShowModal(false)
+                    }}>确定</Button>
                 </AtModalAction>
             </AtModal>
         </View>

@@ -6,17 +6,6 @@ export const commandCodeMap = {
     setDelayShutdown: 'F8 06 A3 03 00 5E',
 }
 
-function setRatedCurrent(value) {
-    const current = value * 10;
-    const hexStr = current.toString(16).toUpperCase();
-    `000${hexStr}`.slice(-4)
-}
-
-function setDelayShutdown(value) {
-
-}
-
-export function parse2Byte(high, low, division = 10) {
-    const dec = parseInt(`${high}${low}`, 16);
-    return dec / division;
+export const InstructionMap = {
+    SET_RATED_CURRENT: 'A1',
 }
