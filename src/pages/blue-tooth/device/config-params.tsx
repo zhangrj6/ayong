@@ -72,7 +72,6 @@ function ConfigParams({ connected, sendCommand, receiveData }) {
 
     // 数字输入框修改事件
     const changeNumberInput = useCallback(value => {
-        console.log('value', value);
         setModalContent({
             ...modalContent,
             param: {
@@ -247,7 +246,9 @@ function ConfigParams({ connected, sendCommand, receiveData }) {
                         sendCommand(modalContent.command(value));
                         Taro.atMessage({ message: `设置${modalHeader}` })
                         setShowModal(false)
-                    }}>确定</Button>
+                    }}>
+                        确定
+                    </Button>
                 </AtModalAction>
             </AtModal>
         </View>

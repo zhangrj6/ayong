@@ -23,6 +23,7 @@ export function useBluetoothDataProcess() {
 
     const processReceiveData = useCallback(res => {
         const curRecLength = res.length / 3; // 3 表示2位十六进制数和1位空格
+        console.log('接收数据', receiveTmp)
         // 首次数据接收，读取数据长度
         if (receiveTmp.dataLength === 0) {
             const dataLength = parseInt(res.substring(3,5), 16);

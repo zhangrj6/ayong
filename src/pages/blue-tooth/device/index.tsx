@@ -15,13 +15,11 @@ function Device() {
     useEffect(() => {
         Taro.setNavigationBarTitle({ title: name })
         return () => {
-            console.log('离开设备连接页');
             disconnectDevice(deviceId);
         }
     }, [])
 
     useDidHide(() => {
-        console.log('页面隐藏');
         disconnectDevice(deviceId)
     });
 

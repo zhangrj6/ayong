@@ -49,11 +49,9 @@ export function useBlueToothDevice() {
                             // 存在则继续查询特征值是否匹配
                             Taro.getBLEDeviceCharacteristics({ deviceId, serviceId: service.uuid })
                                 .then(resCharacteristics => {
-                                    console.log('resCharacteristics.characteristics', resCharacteristics.characteristics);
                                     resCharacteristics.characteristics.forEach(item => {
                                         // 设置写操作特征值
                                         if (item.properties.write && item.uuid === uuid.txduuid) {
-                                            console.log('write-uuid', item.uuid);
                                             setCharacterId(item.uuid);
                                         }
                                         // 是否启用低功耗蓝牙设备特征值变化时的 notify 功能
@@ -65,7 +63,6 @@ export function useBlueToothDevice() {
                                                     characteristicId: item.uuid,
                                                     state: true,
                                                 }).then(() => {
-                                                    console.log('连接成功')
                                                     setConnected(true);
                                                     setConnectLoading(false);
                                                     setMessage('连接成功')
@@ -82,7 +79,6 @@ export function useBlueToothDevice() {
                             Taro.onBLECharacteristicValueChange(res => {
                                 const nowRecHex = ab2hex(res.value);
                                 if (uuid.rxduuid !== res.characteristicId) return;
-                                if (!connected) return;
                                 // 数据处理
                                 processReceiveData(nowRecHex)
                             })
@@ -108,6 +104,7 @@ export function useBlueToothDevice() {
         }));
         buffer1 = typedArray.buffer;
         if (buffer1 === null) return;
+        console.log('send command', command);
         Taro.writeBLECharacteristicValue({
             deviceId,
             serviceId,

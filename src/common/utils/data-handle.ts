@@ -6,7 +6,6 @@ export function strToUUID(str){
     var mstr = "";
     for(let i=0; i<len; i++){
         if (templ.indexOf(str.charAt(i))<0){  //没有这个字符
-            console.log("error = " + str.charAt(i))
         } else mstr += str.charAt(i)
     }
     return mstr
