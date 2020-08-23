@@ -32,7 +32,8 @@ export function useBlueToothDevice() {
     }, [])
 
     // TODO 函数过长，按阶段拆分
-    const connectDevice = useCallback((deviceId) => {
+    const connectDevice = useCallback((deviceId, setConnectLoading) => {
+        setConnectLoading(true);
         Taro.createBLEConnection({ deviceId })
             .then(() => {
                 setDeviceId(deviceId);
@@ -66,13 +67,17 @@ export function useBlueToothDevice() {
                                                 }).then(() => {
                                                     console.log('连接成功')
                                                     setConnected(true);
+                                                    setConnectLoading(false);
                                                     setMessage('连接成功')
                                                 }).catch(err => console.error('开启特征值notify功能', err))
                                             }
                                         }
                                     })
                                 })
-                                .catch(err => console.error('getBLEDeviceCharacteristics', err));
+                                .catch(err => {
+                                    setConnectLoading(false);
+                                    console.error('getBLEDeviceCharacteristics', err);
+                                });
                             // 获取设备推送数据
                             Taro.onBLECharacteristicValueChange(res => {
                                 const nowRecHex = ab2hex(res.value);
@@ -93,6 +98,7 @@ export function useBlueToothDevice() {
 
     // 向设备发送指令
     const sendCommander = useCallback((command) => {
+        console.log('发送指令')
         if (!connected){
             return;
         }
@@ -103,7 +109,6 @@ export function useBlueToothDevice() {
         }));
         buffer1 = typedArray.buffer;
         if (buffer1 === null) return;
-        console.log('已发送')
         Taro.writeBLECharacteristicValue({
             deviceId,
             serviceId,

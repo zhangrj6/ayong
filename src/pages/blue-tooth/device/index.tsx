@@ -14,21 +14,23 @@ function Device() {
 
     useEffect(() => {
         Taro.setNavigationBarTitle({ title: name })
+        return () => {
+            console.log('离开设备连接页');
+            disconnectDevice(deviceId);
+        }
     }, [])
 
-    useEffect(() => {
-        setConnectLoading(false);
-    }, [connected])
-
-    useDidHide(() => disconnectDevice(deviceId));
+    useDidHide(() => {
+        console.log('页面隐藏');
+        disconnectDevice(deviceId)
+    });
 
     // 点击连接/断开连接，loading
     const handleConnect = useCallback(() => {
-        setConnectLoading(true);
         if (connected) {
             disconnectDevice(deviceId);
         } else {
-            connectDevice(deviceId);
+            connectDevice(deviceId, setConnectLoading);
         }
     }, [connected])
 
