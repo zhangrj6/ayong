@@ -98,7 +98,6 @@ export function useBlueToothDevice() {
 
     // 向设备发送指令
     const sendCommander = useCallback((command) => {
-        console.log('发送指令')
         if (!connected){
             return;
         }
@@ -117,7 +116,7 @@ export function useBlueToothDevice() {
         })
             .then(res => console.log('写入特征值', res))
             .catch(err => console.error('写入特征值', err));
-    }, [deviceId, serviceId, characterId]);
+    }, [deviceId, serviceId, characterId, connected]);
 
     return {
         connected,
