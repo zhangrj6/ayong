@@ -23,3 +23,48 @@ export function genSetRatedCurrentCode(value) {
     return EOR(codeList);
 }
 
+/**
+ * 生成延迟关机设置码
+ * @param value
+ */
+export function genSetDelayShutdown(value) {
+    const codeList = ['F8', '06', 'A3'];
+    const hexStr = Number(value).toString(16).toUpperCase();
+    const hexValue = `0${hexStr}`.slice(-2);
+    codeList.push(hexValue);
+    // 填充预留位
+    codeList.push('00');
+    return EOR(codeList);
+}
+
+export function genSetDelayStartup(value) {
+    const codeList = ['F8', '06', 'A2'];
+    const delay = Number(value) / 0.5;
+    const hexStr = delay.toString(16).toUpperCase();
+    const hexValue = `0${hexStr}`.slice(-2);
+    codeList.push(hexValue);
+    // 填充预留位
+    codeList.push('00');
+    return EOR(codeList);
+}
+
+export function genSetMonitorPeriod(value) {
+    const codeList = ['F8', '06', 'A4'];
+    const hexStr = Number(value).toString(16).toUpperCase();
+    const hexValue = `0${hexStr}`.slice(-2);
+    codeList.push(hexValue);
+    // 填充预留位
+    codeList.push('00');
+    return EOR(codeList);
+}
+
+export function genSetStandbyShutdown(value) {
+    const codeList = ['F8', '06', 'A5'];
+    const delay = Number(value) * 60;
+    const hexStr = delay.toString(16).toUpperCase();
+    const hexValue = `0${hexStr}`.slice(-2);
+    codeList.push(hexValue);
+    // 填充预留位
+    codeList.push('00');
+    return EOR(codeList);
+}

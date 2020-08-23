@@ -19,8 +19,8 @@ function parseParamInfo(code) {
             ratedCurrent: parse2Byte(code[4], code[3], 10),
             delayStartup: parseInt(code[5], 16) * 0.5, // 延时开机，后续单位都转化为秒（s）
             delayShutdown: parseInt(code[6], 16), // （s）
-            monitorPeriod: parseInt(code[7], 16) * 60, // （s）
-            standbyShutdown: parseInt(code[8], 16) * 60, // 待机关机时间（s）
+            monitorPeriod: parseInt(code[7], 16), // （min）
+            standbyShutdown: parseInt(code[8], 16) / 60, // 待机关机时间（h）
             currentRate: parseInt(code[9], 16), // 电流倍率
             hardwareVersion: parseInt(code[10], 16) / 10, // 硬件版本号
             manufactureDate: {
@@ -80,23 +80,47 @@ function parseRatedCurrent(code) {
 }
 
 // 开枪启动延时
-function parseDelayStartup() {
-    return {}
+function parseDelayStartup(code) {
+    const commonInfo = parseCommonInfo(code);
+    return {
+        ...commonInfo,
+        data: {
+            delayStartup: parse2Byte(code[4], code[3], 1).toString(),
+        }
+    }
 }
 
 // 关枪停机延时
-function parseDelayShutdown() {
-    return {}
+function parseDelayShutdown(code) {
+    const commonInfo = parseCommonInfo(code);
+    return {
+        ...commonInfo,
+        data: {
+            delayShutdown: parse2Byte(code[4], code[3], 1).toString(),
+        }
+    }
 }
 
 // 实时监测周期
-function parseMonitorPeriod() {
-    return {}
+function parseMonitorPeriod(code) {
+    const commonInfo = parseCommonInfo(code);
+    return {
+        ...commonInfo,
+        data: {
+            monitorPeriod: parse2Byte(code[4], code[3], 1).toString(),
+        }
+    }
 }
 
 // 待机自动关机时间
-function parseStandbyShutdown() {
-
+function parseStandbyShutdown(code) {
+    const commonInfo = parseCommonInfo(code);
+    return {
+        ...commonInfo,
+        data: {
+            standbyShutdown: parse2Byte(code[4], code[3], 1).toString(),
+        }
+    }
 }
 
 // 返回码-指令解析

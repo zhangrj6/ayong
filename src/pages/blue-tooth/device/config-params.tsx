@@ -5,7 +5,13 @@ import {
 } from 'taro-ui'
 import { View, Button } from '@tarojs/components'
 import { commandCodeMap, InstructionMap } from '@common/const/command-code';
-import { genSetRatedCurrentCode } from '@common/utils/instruction-encode';
+import {
+    genSetRatedCurrentCode,
+    genSetDelayShutdown,
+    genSetDelayStartup,
+    genSetMonitorPeriod,
+    genSetStandbyShutdown,
+} from '@common/utils/instruction-encode';
 
 interface IModalContent {
     component: string,
@@ -16,10 +22,10 @@ interface IModalContent {
 function ConfigParams({ connected, sendCommand, receiveData }) {
     const [open, setOpen] = useState(false);
     const [ratedCurrent, setRatedCurrent] = useState(15);
-    const [delayShutdown, setDelayShutdown] = useState(4);
-    const [delayStartup, setDelayStartup] = useState(0.5);
-    const [monitorPeriod, setMonitorPeriod] = useState(8);
-    const [standbyShutdown, setStandbyShutdown] = useState(2);
+    const [delayShutdown, setDelayShutdown] = useState('4');
+    const [delayStartup, setDelayStartup] = useState('0.5');
+    const [monitorPeriod, setMonitorPeriod] = useState('8');
+    const [standbyShutdown, setStandbyShutdown] = useState('2');
     const [showModal, setShowModal] = useState(false);
     const [modalHeader, setModalHeader] = useState('');
     const [modalContent, setModalContent] = useState<IModalContent>({
@@ -40,17 +46,33 @@ function ConfigParams({ connected, sendCommand, receiveData }) {
             switch (receiveData.id) {
                 case InstructionMap.SET_RATED_CURRENT:
                     setRatedCurrent(receiveData.data.ratedCurrent);
-                    Taro.atMessage({ message: `${modalHeader}设置成功`, type: 'success' });
+                    break;
+                case InstructionMap.SET_DELAY_STARTUP:
+                    setDelayStartup(receiveData.data.delayStartup);
+                    break;
+                case InstructionMap.SET_DELAY_SHUTDOWN:
+                    setDelayShutdown(receiveData.data.delayShutdown);
+                    break;
+                case InstructionMap.SET_MONITOR_PERIOD:
+                    setMonitorPeriod(receiveData.data.monitorPeriod);
+                    break;
+                case InstructionMap.SET_STANDBY_SHUTDOWN:
+                    setStandbyShutdown(receiveData.data.standbyShutdown);
                     break;
                 default:
                     setDelayShutdown(receiveData.data.delayShutdown);
                     setRatedCurrent(receiveData.data.ratedCurrent);
+                    setDelayStartup(receiveData.data.delayStartup);
+                    setStandbyShutdown(receiveData.data.standbyShutdown);
+                    setMonitorPeriod(receiveData.data.monitorPeriod);
             }
+            Taro.atMessage({ message: `${modalHeader}设置成功`, type: 'success' });
         }
     }, [receiveData]);
 
     // 数字输入框修改事件
     const changeNumberInput = useCallback(value => {
+        console.log('value', value);
         setModalContent({
             ...modalContent,
             param: {
@@ -74,20 +96,19 @@ function ConfigParams({ connected, sendCommand, receiveData }) {
         })
         setShowModal(true);
     }, [ratedCurrent]);
-    // 修改关枪延时关机,0,3,5,8,10/
+    // 修改关枪延时关机
     const changeDelayShutdown = useCallback(() => {
         setModalHeader('关枪延时关机(秒)');
         setModalContent({
             component: 'radio',
-            command: (e) => {
-            },
+            command: genSetDelayShutdown,
             param: {
                 options: [
-                    { label: '不 延 时', value: 0 },
-                    { label: '延时 3 秒', value: 3, desc: '推荐设置' },
-                    { label: '延时 5 秒', value: 5 },
-                    { label: '延时 8 秒', value: 8 },
-                    { label: '延时 10秒', value: 10 },
+                    { label: '不 延 时', value: '0' },
+                    { label: '延时 3 秒', value: '3', desc: '推荐设置' },
+                    { label: '延时 5 秒', value: '5' },
+                    { label: '延时 8 秒', value: '8' },
+                    { label: '延时 10秒', value: '10' },
                 ],
                 value: delayShutdown,
             }
@@ -99,15 +120,14 @@ function ConfigParams({ connected, sendCommand, receiveData }) {
         setModalHeader('开枪延时开机(秒)');
         setModalContent({
             component: 'radio',
-            command: (e) => {
-            },
+            command: genSetDelayStartup,
             param: {
                 options: [
-                    { label: '不 延 时', value: 0 },
-                    { label: '延时0.5秒', value: 0.5, desc: '推荐设置' },
-                    { label: '延时 1 秒', value: 1 },
-                    { label: '延时1.5秒', value: 1.5 },
-                    { label: '延时 2 秒', value: 2 },
+                    { label: '不 延 时', value: '0' },
+                    { label: '延时0.5秒', value: '0.5', desc: '推荐设置' },
+                    { label: '延时 1 秒', value: '1' },
+                    { label: '延时1.5秒', value: '1.5' },
+                    { label: '延时 2 秒', value: '2' },
                 ],
                 value: delayStartup,
             }
@@ -120,15 +140,14 @@ function ConfigParams({ connected, sendCommand, receiveData }) {
         setModalHeader('实时监测周期(分钟)');
         setModalContent({
             component: 'radio',
-            command: (e) => {
-            },
+            command: genSetMonitorPeriod,
             param: {
                 options: [
-                    { label: '2 分钟', value: 2 },
-                    { label: '5 分钟', value: 5 },
-                    { label: '8 分钟', value: 8, desc: '推荐设置' },
-                    { label: '15分钟', value: 15 },
-                    { label: '25分钟', value: 25 },
+                    { label: '2 分钟', value: '2' },
+                    { label: '5 分钟', value: '5' },
+                    { label: '8 分钟', value: '8', desc: '推荐设置' },
+                    { label: '15分钟', value: '15' },
+                    { label: '25分钟', value: '25' },
                 ],
                 value: monitorPeriod,
             }
@@ -140,15 +159,14 @@ function ConfigParams({ connected, sendCommand, receiveData }) {
         setModalHeader('待机自动关机(小时)');
         setModalContent({
             component: 'radio',
-            command: (e) => {
-            },
+            command: genSetStandbyShutdown,
             param: {
                 options: [
-                    { label: '不 启 用', value: 0 },
-                    { label: '0.5 小时', value: 0.5 },
-                    { label: ' 1 小 时', value: 1 },
-                    { label: ' 2 小 时', value: 2, desc: '推荐设置' },
-                    { label: ' 4 小 时', value: 4 },
+                    { label: '不 启 用', value: '0' },
+                    { label: '0.5 小时', value: '0.5' },
+                    { label: ' 1 小 时', value: '1' },
+                    { label: ' 2 小 时', value: '2', desc: '推荐设置' },
+                    { label: ' 4 小 时', value: '4' },
                 ],
                 value: standbyShutdown,
             }
@@ -182,19 +200,19 @@ function ConfigParams({ connected, sendCommand, receiveData }) {
                     <AtListItem
                         title='开枪延时开机'
                         iconInfo={{ size: 20, color: '#346fc2', prefixClass: 'lw', value: 'delay-startup' }}
-                        extraText={`${delayShutdown}秒`}
+                        extraText={`${delayStartup}秒`}
                         onClick={changeDelayStartup}
                     />
                     <AtListItem
                         title='实时监测周期'
                         iconInfo={{ size: 20, color: '#346fc2', prefixClass: 'lw', value: 'monitor-period' }}
-                        extraText={`${delayShutdown}分钟`}
+                        extraText={`${monitorPeriod}分钟`}
                         onClick={changeMonitorPeriod}
                     />
                     <AtListItem
                         title='待机自动关机'
                         iconInfo={{ size: 20, color: '#346fc2', prefixClass: 'lw', value: 'standby-shutdown' }}
-                        extraText={`${delayShutdown}小时`}
+                        extraText={`${standbyShutdown}小时`}
                         onClick={changeStandbyShutdown}
                     />
                 </AtList>

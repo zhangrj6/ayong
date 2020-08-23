@@ -8,4 +8,8 @@ export const commandCodeMap = {
 
 export const InstructionMap = {
     SET_RATED_CURRENT: 'A1',
+    SET_DELAY_SHUTDOWN: 'A3',
+    SET_DELAY_STARTUP: 'A2',
+    SET_MONITOR_PERIOD: 'A4',
+    SET_STANDBY_SHUTDOWN: 'A5',
 }

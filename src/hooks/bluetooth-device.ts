@@ -63,6 +63,7 @@ export function useBlueToothDevice() {
                                                 characteristicId: item.uuid,
                                                 state: true,
                                             }).then(() => {
+                                                console.log('连接成功')
                                                 setConnected(true);
                                                 setMessage({ message: '连接成功', type: 'success' })
                                             }).catch(err => console.error('开启特征值notify功能', err))
