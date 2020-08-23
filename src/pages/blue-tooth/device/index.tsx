@@ -1,4 +1,4 @@
-import Taro, { useState, useEffect, useRouter, useCallback } from "@tarojs/taro";
+import Taro, { useState, useEffect, useRouter, useCallback, useDidHide } from "@tarojs/taro";
 import { Button, View } from "@tarojs/components";
 import { AtMessage } from 'taro-ui';
 import { useBlueToothDevice } from "@hooks/bluetooth-device";
@@ -12,7 +12,6 @@ function Device() {
     const [connectLoading, setConnectLoading] = useState(false);
     const {connected, message, connectDevice, disconnectDevice, sendCommander, receiveData} = useBlueToothDevice();
 
-    console.log('connected', connected)
     useEffect(() => {
         Taro.setNavigationBarTitle({ title: name })
     }, [])
@@ -20,6 +19,8 @@ function Device() {
     useEffect(() => {
         setConnectLoading(false);
     }, [connected])
+
+    useDidHide(() => disconnectDevice(deviceId));
 
     // 点击连接/断开连接，loading
     const handleConnect = useCallback(() => {
@@ -41,18 +42,10 @@ function Device() {
                 className={`connect-btn ${connected ? 'on' : ''}`}
                 onClick={handleConnect}
             >
-                { connected
-                    ? (
-                        <View>
-                            <View className="btn-handle">断开设备</View>
-                            <View className="btn-status">(当前状态：已连接)</View>
-                        </View>
-                    ) : (
-                        <View>
-                            <View className="btn-handle">连接设备</View>
-                            <View className="btn-status">(当前状态：未连接)</View>
-                        </View>
-                    )}
+                <View>
+                    <View className="btn-handle">{ connected ? '断开设备' : '连接设备'}</View>
+                    <View className="btn-status">(当前状态：{message})</View>
+                </View>
             </Button>
         </View>
     )

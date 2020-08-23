@@ -3,8 +3,8 @@ import { ab2hex, regSendData } from '@common/utils/data-handle';
 import { useBluetoothDataProcess } from '@hooks/bluetooth-data-process';
 
 export function useBlueToothDevice() {
-    const [connected, setConnected] = useState(false);
-    const [message, setMessage] = useState({});
+    const [connected, setConnected] = useState(false); // 连接成功状态
+    const [message, setMessage] = useState('未连接');
     const [deviceId, setDeviceId] = useState('');
     const [serviceId, setServiceId] = useState('');
     const [characterId, setCharacterId] = useState('');
@@ -27,7 +27,8 @@ export function useBlueToothDevice() {
     }, [resultData]);
 
     const disconnectDevice = useCallback((deviceId) => {
-        Taro.closeBLEConnection({ deviceId })
+        Taro.closeBLEConnection({ deviceId });
+        setConnected(false);
     }, [])
 
     // TODO 函数过长，按阶段拆分
@@ -35,11 +36,7 @@ export function useBlueToothDevice() {
         Taro.createBLEConnection({ deviceId })
             .then(() => {
                 setDeviceId(deviceId);
-                // 监听蓝牙连接状态的改变
-                Taro.onBLEConnectionStateChange((state) => {
-                    // 仅当特征匹配开启特征值变化监听时才认为连接建立成功，而断开连接则直接断开
-                    !state.connected && setConnected(state.connected);
-                })
+                setMessage('读取服务');
                 // 读取蓝牙设备下的服务列表
                 Taro.getBLEDeviceServices({ deviceId })
                     .then((resServices) => {
@@ -47,26 +44,31 @@ export function useBlueToothDevice() {
                         const service = resServices.services.find(item => item.uuid === uuid.serviceuuid);
                         if (service) {
                             setServiceId(service.uuid);
+                            setMessage('读取特征值');
                             // 存在则继续查询特征值是否匹配
                             Taro.getBLEDeviceCharacteristics({ deviceId, serviceId: service.uuid })
                                 .then(resCharacteristics => {
+                                    console.log('resCharacteristics.characteristics', resCharacteristics.characteristics);
                                     resCharacteristics.characteristics.forEach(item => {
                                         // 设置写操作特征值
                                         if (item.properties.write && item.uuid === uuid.txduuid) {
+                                            console.log('write-uuid', item.uuid);
                                             setCharacterId(item.uuid);
                                         }
                                         // 是否启用低功耗蓝牙设备特征值变化时的 notify 功能
-                                        if (item.properties.notify && item.uuid === uuid.rxduuid) {
-                                            Taro.notifyBLECharacteristicValueChange({
-                                                deviceId,
-                                                serviceId: service.uuid,
-                                                characteristicId: item.uuid,
-                                                state: true,
-                                            }).then(() => {
-                                                console.log('连接成功')
-                                                setConnected(true);
-                                                setMessage({ message: '连接成功', type: 'success' })
-                                            }).catch(err => console.error('开启特征值notify功能', err))
+                                        if (item.properties.notify || item.properties.indicate) {
+                                            if (item.uuid === uuid.rxduuid) {
+                                                Taro.notifyBLECharacteristicValueChange({
+                                                    deviceId,
+                                                    serviceId: service.uuid,
+                                                    characteristicId: item.uuid,
+                                                    state: true,
+                                                }).then(() => {
+                                                    console.log('连接成功')
+                                                    setConnected(true);
+                                                    setMessage('连接成功')
+                                                }).catch(err => console.error('开启特征值notify功能', err))
+                                            }
                                         }
                                     })
                                 })
@@ -75,13 +77,13 @@ export function useBlueToothDevice() {
                             Taro.onBLECharacteristicValueChange(res => {
                                 const nowRecHex = ab2hex(res.value);
                                 if (uuid.rxduuid !== res.characteristicId) return;
+                                if (!connected) return;
                                 // 数据处理
                                 processReceiveData(nowRecHex)
                             })
                         } else {
                             // 不存在则关闭连接
                             Taro.closeBLEConnection({ deviceId })
-                            setMessage({ message: '请确认Service UUID是否设置正确或重新连接', type: 'error' })
                         }
                     })
                     .catch(err => console.error('获取设备服务列表', err))
@@ -92,7 +94,6 @@ export function useBlueToothDevice() {
     // 向设备发送指令
     const sendCommander = useCallback((command) => {
         if (!connected){
-            setMessage({ message: "请先连接BLE设备...", type: "warning" });
             return;
         }
         let hex = command || ''; //要发送的数据

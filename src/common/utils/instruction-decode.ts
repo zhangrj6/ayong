@@ -140,5 +140,7 @@ export function instructionParseStrategy(code) {
     codeArray.pop()
     // 提取指令ID
     const id = codeArray[2];
+    console.log('instructionParseMap', id);
+    if (!instructionParseMap[id]) return {};
     return instructionParseMap[id](codeArray);
 }

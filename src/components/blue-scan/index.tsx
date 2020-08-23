@@ -47,7 +47,8 @@ function BlueScan({ display }) {
                 onChangeUuid={value => {
                     setShowSetting(false);
                     setUuid(value)
-                }}/>
+                }}
+            />
             <AtNoticebar className="notice-bar">
                 {available ? `已发现 ${devices.length} 个BLE设备` : '蓝牙适配器未开启或不可用'}
             </AtNoticebar>
