@@ -16,14 +16,15 @@ export function useBluetoothDataProcess() {
         // 当数据处理完毕，且所要处理的数据有效不为空时，再进行指令解析
         if (receiveTmp.receiveData.length > 0) {
             const result = instructionParseStrategy(receiveTmp.receiveData);
-            console.log('result', result);
-            setResultData(result);
+            // 校验未通过，返回null舍弃
+            if (result) {
+                setResultData(result);
+            }
         }
     }, [receiveTmp]);
 
     const processReceiveData = useCallback(res => {
         const curRecLength = res.length / 3; // 3 表示2位十六进制数和1位空格
-        console.log('接收数据', receiveTmp)
         // 首次数据接收，读取数据长度
         if (receiveTmp.dataLength === 0) {
             const dataLength = parseInt(res.substring(3,5), 16);
@@ -34,7 +35,6 @@ export function useBluetoothDataProcess() {
                 receiveTmp.receivedDataLength = curRecLength;
             } else {
                 receiveTmp.dataLength = 0;
-                // TODO 数据校验
                 parseInstruction()
             }
         } else {
@@ -46,7 +46,6 @@ export function useBluetoothDataProcess() {
             } else {
                 receiveTmp.dataLength = 0;
                 receiveTmp.receivedDataLength = 0;
-                // TODO 数据校验
                 parseInstruction()
             }
         }

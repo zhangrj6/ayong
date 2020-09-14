@@ -104,14 +104,13 @@ export function useBlueToothDevice() {
         }));
         buffer1 = typedArray.buffer;
         if (buffer1 === null) return;
-        console.log('send command', command);
         Taro.writeBLECharacteristicValue({
             deviceId,
             serviceId,
             characteristicId: characterId,
             value: buffer1,
         })
-            .then(res => console.log('写入特征值', res))
+            .then(() => {})
             .catch(err => console.error('写入特征值', err));
     }, [deviceId, serviceId, characterId, connected]);
 

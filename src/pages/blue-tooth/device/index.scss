@@ -43,6 +43,7 @@
     display: flex;
     justify-content: center;
     margin-top: 16px;
+    border-bottom: 1px solid #1E90FF;
     .light-item {
       display: flex;
       align-items: center;
@@ -50,6 +51,12 @@
       font-size: 28px;
       margin: 0 36px;
     }
+  }
+  .indicator-info {
+    padding: 4px 8px;
+  }
+  .switch-group {
+    border-top: 1px solid #1E90FF;
   }
 }
 

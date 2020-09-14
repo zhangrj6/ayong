@@ -20,7 +20,7 @@ export function useBlueToothAdapter({ duration = 20000 } = {}) {
     const [available, setAvailable] = useState(true);
     const [discovering, setDiscovering] = useState(false);
     // 蓝牙设备列表
-    const [devices, setDevices] = useState<Device[]>([]);
+    let [devices, setDevices] = useState<Device[]>([]);
 
     // 开启初始化蓝牙适配器
     useEffect(() => {
@@ -49,6 +49,7 @@ export function useBlueToothAdapter({ duration = 20000 } = {}) {
 
     // 搜索蓝牙设备
     const startDevicesDiscovery = useCallback((serviceuuid) => {
+        devices = [];
         Taro.startBluetoothDevicesDiscovery({ allowDuplicatesKey: true, services: [serviceuuid] })
             .then(() => {
                 setTimeout(() => {
@@ -71,7 +72,9 @@ export function useBlueToothAdapter({ duration = 20000 } = {}) {
                     })
                 })
             });
-    }, []);
+    }, [devices]);
+
+
 
     return {
         available,

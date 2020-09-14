@@ -1,9 +1,12 @@
+export function genCheckCode(list) {
+    return list.reduce((ret, num) => ret ^ parseInt(num, 16), 0).toString(16).toUpperCase();
+}
 /**
  * 校验码生成函数
  * @param list 数据码数组
  */
 function EOR(list) {
-    const checkCode = list.reduce((ret, num) => ret ^ parseInt(num, 16), 0).toString(16).toUpperCase();
+    const checkCode = genCheckCode(list);
     return [...list, checkCode].join(' ');
 }
 

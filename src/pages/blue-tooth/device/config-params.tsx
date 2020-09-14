@@ -2,6 +2,7 @@ import Taro, {useState, useEffect, useCallback} from "@tarojs/taro";
 import {
     AtAccordion, AtList, AtListItem, AtInputNumber, AtRadio,
     AtModal, AtModalHeader, AtModalContent, AtModalAction,
+    AtButton,
 } from 'taro-ui'
 import { View, Button } from '@tarojs/components'
 import { commandCodeMap, InstructionMap } from '@common/const/command-code';
@@ -22,10 +23,10 @@ interface IModalContent {
 function ConfigParams({ connected, sendCommand, receiveData }) {
     const [open, setOpen] = useState(false);
     const [ratedCurrent, setRatedCurrent] = useState(15);
-    const [delayShutdown, setDelayShutdown] = useState('4');
-    const [delayStartup, setDelayStartup] = useState('0.5');
-    const [monitorPeriod, setMonitorPeriod] = useState('8');
-    const [standbyShutdown, setStandbyShutdown] = useState('2');
+    const [delayShutdown, setDelayShutdown] = useState(4);
+    const [delayStartup, setDelayStartup] = useState(0.5);
+    const [monitorPeriod, setMonitorPeriod] = useState(8);
+    const [standbyShutdown, setStandbyShutdown] = useState(2);
     const [showModal, setShowModal] = useState(false);
     const [modalHeader, setModalHeader] = useState('');
     const [modalContent, setModalContent] = useState<IModalContent>({
@@ -41,44 +42,52 @@ function ConfigParams({ connected, sendCommand, receiveData }) {
         }
     }, [connected]);
 
+    // 处理参数设置返回值
     useEffect(() => {
         if (receiveData && receiveData.data) {
             switch (receiveData.id) {
                 case InstructionMap.SET_RATED_CURRENT:
                     setRatedCurrent(receiveData.data.ratedCurrent);
+                    Taro.atMessage({ message: '额定电流设置成功', type: 'success' });
                     break;
                 case InstructionMap.SET_DELAY_STARTUP:
-                    setDelayStartup(receiveData.data.delayStartup);
+                    setDelayStartup(Number(receiveData.data.delayStartup)/2);
+                    Taro.atMessage({ message: '开枪延时开机设置成功', type: 'success' });
                     break;
                 case InstructionMap.SET_DELAY_SHUTDOWN:
-                    setDelayShutdown(receiveData.data.delayShutdown);
+                    setDelayShutdown(Number(receiveData.data.delayShutdown));
+                    Taro.atMessage({ message: '关枪延时关机设置成功', type: 'success' });
                     break;
                 case InstructionMap.SET_MONITOR_PERIOD:
-                    setMonitorPeriod(receiveData.data.monitorPeriod);
+                    setMonitorPeriod(Number(receiveData.data.monitorPeriod));
+                    Taro.atMessage({ message: '实时监测周期设置成功', type: 'success' });
                     break;
                 case InstructionMap.SET_STANDBY_SHUTDOWN:
-                    setStandbyShutdown(receiveData.data.standbyShutdown);
+                    setStandbyShutdown(Number(receiveData.data.standbyShutdown)/60);
+                    Taro.atMessage({ message: '待机自动关机设置成功', type: 'success' });
                     break;
-                default:
+                case InstructionMap.GET_PARAM_INFO:
                     setDelayShutdown(receiveData.data.delayShutdown);
                     setRatedCurrent(receiveData.data.ratedCurrent);
                     setDelayStartup(receiveData.data.delayStartup);
                     setStandbyShutdown(receiveData.data.standbyShutdown);
                     setMonitorPeriod(receiveData.data.monitorPeriod);
             }
-            Taro.atMessage({ message: `${modalHeader}设置成功`, type: 'success' });
+            // Taro.atMessage({ message: `${modalHeader}设置成功`, type: 'success' });
         }
     }, [receiveData]);
 
     // 数字输入框修改事件
     const changeNumberInput = useCallback(value => {
+        const newValue = Number(value.toFixed(1));
         setModalContent({
             ...modalContent,
             param: {
                 ...modalContent.param,
-                value,
+                value: newValue
             }
         })
+
     }, [modalContent]);
     // 修改额定电流
     const changeRatedCurrent = useCallback(() => {
@@ -103,11 +112,11 @@ function ConfigParams({ connected, sendCommand, receiveData }) {
             command: genSetDelayShutdown,
             param: {
                 options: [
-                    { label: '不 延 时', value: '0' },
-                    { label: '延时 3 秒', value: '3', desc: '推荐设置' },
-                    { label: '延时 5 秒', value: '5' },
-                    { label: '延时 8 秒', value: '8' },
-                    { label: '延时 10秒', value: '10' },
+                    { label: '不 延 时', value: 0 },
+                    { label: '延时 3 秒', value: 3, desc: '推荐设置' },
+                    { label: '延时 5 秒', value: 5 },
+                    { label: '延时 8 秒', value: 8 },
+                    { label: '延时 10秒', value: 10 },
                 ],
                 value: delayShutdown,
             }
@@ -122,11 +131,11 @@ function ConfigParams({ connected, sendCommand, receiveData }) {
             command: genSetDelayStartup,
             param: {
                 options: [
-                    { label: '不 延 时', value: '0' },
-                    { label: '延时0.5秒', value: '0.5', desc: '推荐设置' },
-                    { label: '延时 1 秒', value: '1' },
-                    { label: '延时1.5秒', value: '1.5' },
-                    { label: '延时 2 秒', value: '2' },
+                    { label: '不 延 时', value: 0 },
+                    { label: '延时0.5秒', value: 0.5, desc: '推荐设置' },
+                    { label: '延时 1 秒', value: 1 },
+                    { label: '延时1.5秒', value: 1.5 },
+                    { label: '延时 2 秒', value: 2 },
                 ],
                 value: delayStartup,
             }
@@ -142,11 +151,11 @@ function ConfigParams({ connected, sendCommand, receiveData }) {
             command: genSetMonitorPeriod,
             param: {
                 options: [
-                    { label: '2 分钟', value: '2' },
-                    { label: '5 分钟', value: '5' },
-                    { label: '8 分钟', value: '8', desc: '推荐设置' },
-                    { label: '15分钟', value: '15' },
-                    { label: '25分钟', value: '25' },
+                    { label: '2 分钟', value: 2 },
+                    { label: '5 分钟', value: 5 },
+                    { label: '8 分钟', value: 8, desc: '推荐设置' },
+                    { label: '15分钟', value: 15 },
+                    { label: '25分钟', value: 25 },
                 ],
                 value: monitorPeriod,
             }
@@ -161,11 +170,11 @@ function ConfigParams({ connected, sendCommand, receiveData }) {
             command: genSetStandbyShutdown,
             param: {
                 options: [
-                    { label: '不 启 用', value: '0' },
-                    { label: '0.5 小时', value: '0.5' },
-                    { label: ' 1 小 时', value: '1' },
-                    { label: ' 2 小 时', value: '2', desc: '推荐设置' },
-                    { label: ' 4 小 时', value: '4' },
+                    { label: '不 启 用', value: 0 },
+                    { label: '0.5 小时', value: 0.5 },
+                    { label: ' 1 小 时', value: 1 },
+                    { label: ' 2 小 时', value: 2, desc: '推荐设置' },
+                    { label: ' 4 小 时', value: 4 },
                 ],
                 value: standbyShutdown,
             }
@@ -193,13 +202,13 @@ function ConfigParams({ connected, sendCommand, receiveData }) {
                     <AtListItem
                         title='关枪延时关机'
                         iconInfo={{ size: 20, color: '#346fc2', prefixClass: 'lw', value: 'delay-shutdown' }}
-                        extraText={`${delayShutdown}秒`}
+                        extraText={delayShutdown > 0 ? `${delayShutdown}秒` : '不延时'}
                         onClick={changeDelayShutdown}
                     />
                     <AtListItem
                         title='开枪延时开机'
                         iconInfo={{ size: 20, color: '#346fc2', prefixClass: 'lw', value: 'delay-startup' }}
-                        extraText={`${delayStartup}秒`}
+                        extraText={delayStartup > 0 ? `${delayStartup}秒` : '不延时'}
                         onClick={changeDelayStartup}
                     />
                     <AtListItem
@@ -211,7 +220,7 @@ function ConfigParams({ connected, sendCommand, receiveData }) {
                     <AtListItem
                         title='待机自动关机'
                         iconInfo={{ size: 20, color: '#346fc2', prefixClass: 'lw', value: 'standby-shutdown' }}
-                        extraText={`${standbyShutdown}分钟`}
+                        extraText={standbyShutdown > 0 ? `${standbyShutdown}小时` : '不启用'}
                         onClick={changeStandbyShutdown}
                     />
                 </AtList>
@@ -221,7 +230,7 @@ function ConfigParams({ connected, sendCommand, receiveData }) {
                 <AtModalContent>
                     { modalContent.component === 'numberInput' &&
                         <AtInputNumber
-                            type="number"
+                            type="digit"
                             size="large"
                             className="number-input"
                             min={modalContent.param.min}
@@ -229,6 +238,7 @@ function ConfigParams({ connected, sendCommand, receiveData }) {
                             step={modalContent.param.step}
                             value={modalContent.param.value}
                             onChange={changeNumberInput}
+                            disabled={!connected}
                         />
                     }
                     { modalContent.component === 'radio' &&
@@ -241,7 +251,7 @@ function ConfigParams({ connected, sendCommand, receiveData }) {
                 </AtModalContent>
                 <AtModalAction>
                     <Button onClick={() => setShowModal(false)}>取消</Button>
-                    <Button onClick={() => {
+                    <Button disabled={!connected} onClick={() => {
                         const value = modalContent.param.value;
                         sendCommand(modalContent.command(value));
                         Taro.atMessage({ message: `设置${modalHeader}` })

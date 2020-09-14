@@ -1,5 +1,8 @@
 import { parse2Byte } from './code-handle';
 import Taro from "@tarojs/taro";
+import { InstructionMap } from '../const/command-code';
+import { genCheckCode } from './instruction-encode';
+
 // 解析指令中的通用信息
 function parseCommonInfo(code) {
     const dataLength = parseInt(code[1], 16);
@@ -67,7 +70,6 @@ function parseParamInfo(code) {
             standby: [6, 11, 11][parseInt(code[52], 16)], // 三相备用
         }
     }
-    console.log('parse-data', result);
     Taro.setStorageSync('systemInfo', result.data);
     return result;
 }
@@ -148,13 +150,13 @@ function parseRealTimeInfo(code) {
 
 // 返回码-指令解析
 const instructionParseMap = {
-    'E1': parseParamInfo, // 读取参数信息
-    'E2': parseRealTimeInfo, // 读取实时数据
-    'A1': parseRatedCurrent, // 设置额定电流
-    'A2': parseDelayStartup, // 设置开枪启动延时
-    'A3': parseDelayShutdown, // 设置关枪停机延时
-    'A4': parseMonitorPeriod, // 设置实时监测周期
-    'A5': parseStandbyShutdown, // 设置待机自动关机时间
+    [InstructionMap.GET_PARAM_INFO]: parseParamInfo, // 读取参数信息
+    [InstructionMap.GET_REALTIME_INFO]: parseRealTimeInfo, // 读取实时数据
+    [InstructionMap.SET_RATED_CURRENT]: parseRatedCurrent, // 设置额定电流
+    [InstructionMap.SET_DELAY_STARTUP]: parseDelayStartup, // 设置开枪启动延时
+    [InstructionMap.SET_DELAY_SHUTDOWN]: parseDelayShutdown, // 设置关枪停机延时
+    [InstructionMap.SET_MONITOR_PERIOD]: parseMonitorPeriod, // 设置实时监测周期
+    [InstructionMap.SET_STANDBY_SHUTDOWN]: parseStandbyShutdown, // 设置待机自动关机时间
 }
 
 // 解析指令返回码策略
@@ -164,7 +166,10 @@ export function instructionParseStrategy(code) {
     codeArray.pop()
     // 提取指令ID
     const id = codeArray[2];
-    console.log('instructionParseMap', id);
+    // 根据校验位校验接收到的数据
+    const checkResult = genCheckCode(codeArray);
+    if (checkResult) return null;
+    // 校验通过，是否有对应的指令解析方法
     if (!instructionParseMap[id]) return {};
     return instructionParseMap[id](codeArray);
 }

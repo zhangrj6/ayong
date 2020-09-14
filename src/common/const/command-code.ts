@@ -13,4 +13,11 @@ export const InstructionMap = {
     SET_DELAY_STARTUP: 'A2',
     SET_MONITOR_PERIOD: 'A4',
     SET_STANDBY_SHUTDOWN: 'A5',
+    GET_PARAM_INFO: 'E1',
+    GET_REALTIME_INFO: 'E2',
+}
+
+export const Prefix = {
+    SINGLE_PHASE: 'F9',
+    THREE_PHASE: 'FA',
 }
