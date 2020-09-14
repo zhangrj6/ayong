@@ -168,7 +168,7 @@ export function instructionParseStrategy(code) {
     const id = codeArray[2];
     // 根据校验位校验接收到的数据
     const checkResult = genCheckCode(codeArray);
-    if (checkResult) return null;
+    if (!checkResult) return null;
     // 校验通过，是否有对应的指令解析方法
     if (!instructionParseMap[id]) return {};
     return instructionParseMap[id](codeArray);

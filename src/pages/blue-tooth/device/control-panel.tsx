@@ -1,6 +1,6 @@
 import Taro, { useState, useEffect } from '@tarojs/taro'
 import { Text, View } from "@tarojs/components";
-import { AtIcon, AtSwitch, AtButton } from "taro-ui";
+import { AtIcon, AtSwitch } from "taro-ui";
 import { commandCodeMap, InstructionMap } from '@common/const/command-code';
 import { parseLed, color } from '@common/utils/code-handle';
 import './index.scss';
