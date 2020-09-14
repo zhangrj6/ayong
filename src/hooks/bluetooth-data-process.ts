@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "@tarojs/taro";
+import { useState, useCallback } from "@tarojs/taro";
 import { instructionParseStrategy } from "@common/utils/instruction-decode";
 
 export function useBluetoothDataProcess() {

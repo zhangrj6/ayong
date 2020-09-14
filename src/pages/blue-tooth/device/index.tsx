@@ -35,7 +35,7 @@ function Device() {
     return (
         <View className="device">
             <AtMessage />
-            <ControlPanel connected={connected} sendCommand={sendCommander} />
+            <ControlPanel connected={connected} sendCommand={sendCommander} receiveData={receiveData} />
             <ConfigParams connected={connected} sendCommand={sendCommander} receiveData={receiveData} />
             <Button
                 loading={connectLoading}

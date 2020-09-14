@@ -4,6 +4,7 @@ export const commandCodeMap = {
     readParamInfo: 'F8 06 E1 00 00 1F',
     setRatedCurrent: 'F8 06 A1 7D 00 22',
     setDelayShutdown: 'F8 06 A3 03 00 5E',
+    realTimeCommunication: 'F8 06 E2 00 00 1C',
 }
 
 export const InstructionMap = {

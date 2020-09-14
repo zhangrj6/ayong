@@ -42,7 +42,7 @@ function ConfigParams({ connected, sendCommand, receiveData }) {
     }, [connected]);
 
     useEffect(() => {
-        if (receiveData.data) {
+        if (receiveData && receiveData.data) {
             switch (receiveData.id) {
                 case InstructionMap.SET_RATED_CURRENT:
                     setRatedCurrent(receiveData.data.ratedCurrent);
@@ -211,7 +211,7 @@ function ConfigParams({ connected, sendCommand, receiveData }) {
                     <AtListItem
                         title='待机自动关机'
                         iconInfo={{ size: 20, color: '#346fc2', prefixClass: 'lw', value: 'standby-shutdown' }}
-                        extraText={`${standbyShutdown}小时`}
+                        extraText={`${standbyShutdown}分钟`}
                         onClick={changeStandbyShutdown}
                     />
                 </AtList>

@@ -1,4 +1,5 @@
 import { parse2Byte } from './code-handle';
+import Taro from "@tarojs/taro";
 // 解析指令中的通用信息
 function parseCommonInfo(code) {
     const dataLength = parseInt(code[1], 16);
@@ -13,7 +14,7 @@ function parseCommonInfo(code) {
 // 解析读取参数信息
 function parseParamInfo(code) {
     const commonInfo = parseCommonInfo(code);
-    return {
+    const result = {
         ...commonInfo,
         data: {
             ratedCurrent: parse2Byte(code[4], code[3], 10),
@@ -63,9 +64,12 @@ function parseParamInfo(code) {
             },
             isCheckSwitch: parseInt(code[50], 16), // 是否检测按键开关
             externalSwitchType: parseInt(code[51], 16), // 外接控制开关类型
-            standby: parseInt(code[52], 16), // 三相备用
+            standby: [6, 11, 11][parseInt(code[52], 16)], // 三相备用
         }
     }
+    console.log('parse-data', result);
+    Taro.setStorageSync('systemInfo', result.data);
+    return result;
 }
 
 // 解析额定电流
@@ -123,9 +127,29 @@ function parseStandbyShutdown(code) {
     }
 }
 
+// 读取实时数据信息
+function parseRealTimeInfo(code) {
+    const commonInfo = parseCommonInfo(code);
+    // 获取全局存储的配置数据
+    const systemInfo = Taro.getStorageSync('systemInfo');
+    const currentRate = systemInfo.currentRate || 74; // 电流倍率
+    const leakageCurrent = systemInfo.leakageCurrent || 1023; // 漏电参考值
+    const resistanceRate = systemInfo.standby || 6; // 电阻比率
+    return {
+        ...commonInfo,
+        data: {
+            current: parse2Byte(code[4], code[3], currentRate / 10),
+            leakage: parse2Byte(code[6], code[5], leakageCurrent / 30),
+            voltage: parse2Byte(code[8], code[7], 1023 / (3.3 * resistanceRate)),
+            led: code[9],
+        }
+    }
+}
+
 // 返回码-指令解析
 const instructionParseMap = {
     'E1': parseParamInfo, // 读取参数信息
+    'E2': parseRealTimeInfo, // 读取实时数据
     'A1': parseRatedCurrent, // 设置额定电流
     'A2': parseDelayStartup, // 设置开枪启动延时
     'A3': parseDelayShutdown, // 设置关枪停机延时
