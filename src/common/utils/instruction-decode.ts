@@ -70,6 +70,7 @@ function parseParamInfo(code) {
             standby: [6, 11, 11][parseInt(code[52], 16)], // 三相备用
         }
     }
+    console.log('解析读取参数信息', result)
     Taro.setStorageSync('systemInfo', result.data);
     return result;
 }

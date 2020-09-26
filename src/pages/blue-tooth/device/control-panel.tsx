@@ -23,7 +23,7 @@ function ControlPanel({ sendCommand, connected, receiveData }) {
             // 每2s获取一次实时数据
             timer = setInterval(() => {
                 sendCommand(commandCodeMap.realTimeCommunication);
-            }, 1000);
+            }, 500);
         }
         return () => clearInterval(timer);
     }, [connected]);
