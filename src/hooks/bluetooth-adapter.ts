@@ -50,7 +50,7 @@ export function useBlueToothAdapter({ duration = 20000 } = {}) {
     // 搜索蓝牙设备
     const startDevicesDiscovery = useCallback((serviceuuid) => {
         devices = [];
-        Taro.startBluetoothDevicesDiscovery({ allowDuplicatesKey: true, services: [serviceuuid] })
+        Taro.startBluetoothDevicesDiscovery({ allowDuplicatesKey: true }) // services: [serviceuuid]
             .then(() => {
                 setTimeout(() => {
                     stopDevicesDiscovery()

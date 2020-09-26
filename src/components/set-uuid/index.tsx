@@ -56,7 +56,7 @@ function SetUuid({ showSetting= false, onChangeUuid }) {
                 <AtRadio
                     options={[
                         { label: '常规模组', value: MODE_TYPE.default },
-                        { label: 'BT16模组', value: MODE_TYPE.bt16 },
+                        { label: 'BT4502模组', value: MODE_TYPE.bt16 },
                         { label: '制定UUID', value: MODE_TYPE.custom },
                     ]}
                     value={modeType}
