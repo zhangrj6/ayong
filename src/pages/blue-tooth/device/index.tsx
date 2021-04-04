@@ -10,21 +10,38 @@ function Device() {
     const router = useRouter();
     const { deviceId, name } = router.params;
     const [connectLoading, setConnectLoading] = useState(false);
-    const {connected, message, connectDevice, disconnectDevice, sendCommander, receiveData} = useBlueToothDevice();
+    const {
+        connected,
+        message,
+        connectDevice,
+        disconnectDevice,
+        sendCommander,
+        receiveData
+    } = useBlueToothDevice();
 
     useEffect(() => {
         Taro.setNavigationBarTitle({ title: name })
+        // 进入设备自动连接设备
+        connectDevice(deviceId, setConnectLoading);
         return () => {
-            disconnectDevice(deviceId);
+            // 退出当前页面时，若连接未断开则断开连接
+            if (connected) {
+                disconnectDevice(deviceId);
+            }
         }
     }, [])
 
     useDidHide(() => {
-        disconnectDevice(deviceId)
+        // 手机息屏时也会调用，由于此为稍高频操作，故暂不断开设备连接
+        // disconnectDevice(deviceId);
     });
 
     // 点击连接/断开连接，loading
     const handleConnect = useCallback(() => {
+        // 在连接状态中，不支持新建或断开连接
+        if (!connectLoading) {
+
+        }
         if (connected) {
             disconnectDevice(deviceId);
         } else {
@@ -44,7 +61,6 @@ function Device() {
             >
                 <View>
                     <View className="btn-handle">{ connected ? '断开设备' : '连接设备'}</View>
-                    <View className="btn-status">(当前状态：{message})</View>
                 </View>
             </Button>
         </View>

@@ -33,6 +33,7 @@ function ControlPanel({ sendCommand, connected, receiveData }) {
     useEffect(() => {
         if (connected && receiveData.id === InstructionMap.GET_REALTIME_INFO) {
             const { current, voltage, leakage, led } = receiveData.data;
+            console.log('')
             setCurrent(current.toFixed(1));
             setVoltage(voltage.toFixed(1));
             setLeakage(leakage.toFixed(1));

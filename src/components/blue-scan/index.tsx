@@ -1,8 +1,16 @@
 import { useState, useEffect } from "@tarojs/taro";
 import { View, Button } from "@tarojs/components";
-import { AtNoticebar, AtList, AtListItem, AtMessage, AtIcon } from 'taro-ui'
+import {
+    AtNoticebar,
+    AtList,
+    AtListItem,
+    AtMessage,
+    AtIcon,
+    AtActionSheet,
+    AtActionSheetItem
+} from 'taro-ui'
 import SetUuid from "@components/set-uuid"
-import { defaultUuid } from '@common/const/uuid'
+import { bt4502Uuid } from '@common/const/uuid'
 import { useBlueToothAdapter } from '@hooks/bluetooth-adapter';
 import './index.scss'
 
@@ -10,8 +18,16 @@ import './index.scss'
 function BlueScan({ display }) {
     const [firstRender, setFirstRender] = useState(true); // 首次渲染控制
     const [showSetting, setShowSetting] = useState(false); // 是否显示模组设置
-    const [uuid, setUuid] = useState(defaultUuid);
-    const {available, discovering, startDevicesDiscovery, stopDevicesDiscovery, devices} = useBlueToothAdapter();
+    const [uuid, setUuid] = useState(bt4502Uuid);
+    const [showAction, setShowAction] = useState(false); // 隐藏操作按钮
+    const {
+        available,
+        discovering,
+        startDevicesDiscovery,
+        stopDevicesDiscovery,
+        resetBluetoothModule,
+        devices
+    } = useBlueToothAdapter();
 
     // 蓝牙适配器状态开关改变时的提示
     useEffect(() => {
@@ -64,6 +80,7 @@ function BlueScan({ display }) {
                             note={item.deviceId}
                             iconInfo={{ value: 'lanya', prefixClass: 'lw', size: 40, color: '#346fc2' }}
                             onClick={() => {
+                                stopDevicesDiscovery()
                                 Taro.navigateTo({
                                     url: `/pages/blue-tooth/device/index?deviceId=${item.deviceId}&name=${item.name}`
                                 });
@@ -73,7 +90,11 @@ function BlueScan({ display }) {
                 </AtList>
             </View>
             <View className='btn-group'>
-                <Button className="scan-btn setting" onClick={() => setShowSetting(true)}>
+                <Button
+                    className="scan-btn setting"
+                    onClick={() => setShowSetting(true)}
+                    onLongPress={() => setShowAction(true)}
+                >
                     <AtIcon prefixClass='lw' value='setting' size='16' color='#fff' />
                 </Button>
                 { discovering &&
@@ -93,6 +114,18 @@ function BlueScan({ display }) {
                     扫描设备
                 </Button>
             </View>
+            <AtActionSheet
+                title="调试操作"
+                isOpened={showAction}
+                onClose={() => setShowAction(false)}
+            >
+                <AtActionSheetItem onClick={() => {
+                    resetBluetoothModule(Taro.atMessage)
+                    setShowAction(false)
+                }}>
+                    重置蓝牙模块
+                </AtActionSheetItem>
+            </AtActionSheet>
         </View>
     )
 }

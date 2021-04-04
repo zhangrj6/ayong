@@ -2,7 +2,7 @@ import Taro, {useEffect, useState} from "@tarojs/taro";
 import { View } from "@tarojs/components";
 import { AtFloatLayout, AtInput, AtRadio } from "taro-ui";
 // @ts-ignore
-import { MODE_TYPE, defaultUuid, bt16Uuid } from "@common/const/uuid";
+import { MODE_TYPE, defaultUuid, bt4502Uuid } from "@common/const/uuid";
 // @ts-ignore
 import { strToUUID } from "@common/utils/data-handle";
 
@@ -13,14 +13,14 @@ import { strToUUID } from "@common/utils/data-handle";
  * @constructor
  */
 function SetUuid({ showSetting= false, onChangeUuid }) {
-    const [modeType, setModeType] = useState(MODE_TYPE.default);
+    const [modeType, setModeType] = useState(MODE_TYPE.bt4502);
     const [customUuid, setCustomUuid] = useState(defaultUuid);
 
     useEffect(() => {
         // 从持久化数据中重置数据
         const modelType = Taro.getStorageSync('modeType');
         const customUuid = Taro.getStorageSync('customUuid');
-        setModeType(modelType || MODE_TYPE.default);
+        setModeType(modelType || MODE_TYPE.bt4502);
         setCustomUuid(customUuid || defaultUuid);
     }, []);
 
@@ -39,7 +39,7 @@ function SetUuid({ showSetting= false, onChangeUuid }) {
         if (modeType === MODE_TYPE.custom) Taro.setStorageSync('customUuid', customUuid);
         const uuid = {
             [MODE_TYPE.default]: defaultUuid,
-            [MODE_TYPE.bt16]: bt16Uuid,
+            [MODE_TYPE.bt4502]: bt4502Uuid,
             [MODE_TYPE.custom]: customUuid,
         }[modeType];
         onChangeUuid(uuid);
@@ -56,7 +56,7 @@ function SetUuid({ showSetting= false, onChangeUuid }) {
                 <AtRadio
                     options={[
                         { label: '常规模组', value: MODE_TYPE.default },
-                        { label: 'BT4502模组', value: MODE_TYPE.bt16 },
+                        { label: 'BT4502模组', value: MODE_TYPE.bt4502 },
                         { label: '制定UUID', value: MODE_TYPE.custom },
                     ]}
                     value={modeType}

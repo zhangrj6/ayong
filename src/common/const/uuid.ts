@@ -1,7 +1,7 @@
 // 模组类型
 export const MODE_TYPE = {
     default: 'default',
-    bt16: 'bt16',
+    bt4502: 'bt4502',
     custom: 'custom',
 };
 // UUID 默认值
@@ -20,8 +20,8 @@ export const defaultUuid = {
     rxduuid: "0000FFE1-0000-1000-8000-00805F9B34FB",
 };
 
-// UUID BT16模组值
-export const bt16Uuid = {
+// UUID BT4502模组值
+export const bt4502Uuid = {
     serviceuuid: "0000FFE0-0000-1000-8000-00805F9B34FB",
     txduuid: "0000FFE9-0000-1000-8000-00805F9B34FB",
     rxduuid: "0000FFE4-0000-1000-8000-00805F9B34FB",
