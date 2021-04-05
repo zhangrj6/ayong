@@ -13,7 +13,7 @@ function ControlPanel({ sendCommand, connected, receiveData }) {
         run: color.grep,
         standby: color.grep,
         fault: color.grep,
-        loss: color.grep,
+        loss: '',
     })
 
     // 实时通信副作用逻辑
@@ -23,7 +23,7 @@ function ControlPanel({ sendCommand, connected, receiveData }) {
             // 每2s获取一次实时数据
             timer = setInterval(() => {
                 sendCommand(commandCodeMap.realTimeCommunication);
-            }, 500);
+            }, 400);
         }
         return () => clearInterval(timer);
     }, [connected]);
@@ -33,7 +33,6 @@ function ControlPanel({ sendCommand, connected, receiveData }) {
     useEffect(() => {
         if (connected && receiveData.id === InstructionMap.GET_REALTIME_INFO) {
             const { current, voltage, leakage, led } = receiveData.data;
-            console.log('')
             setCurrent(current.toFixed(1));
             setVoltage(voltage.toFixed(1));
             setLeakage(leakage.toFixed(1));
@@ -57,6 +56,14 @@ function ControlPanel({ sendCommand, connected, receiveData }) {
                     <AtIcon prefixClass='lw' value='indicator-light' size='32' color={led.fault} />
                     <Text>故障</Text>
                 </View>
+                {
+                    led.loss && (
+                        <View className="light-item">
+                            <AtIcon prefixClass='lw' value='indicator-light' size='32' color={led.loss} />
+                            <Text>缺相</Text>
+                        </View>
+                    )
+                }
             </View>
             <View className="indicator-info">
                 <View>
@@ -70,13 +77,15 @@ function ControlPanel({ sendCommand, connected, receiveData }) {
                 </View>
             </View>
             <View className="switch-group">
-                <View>
-                    <AtSwitch
-                        disabled={!connected}
-                        title="开关机"
-                        onChange={(value) => sendCommand(value ? commandCodeMap.openDevice : commandCodeMap.closeDevice)}
-                    />
-                </View>
+                {/*<View>*/}
+                {/*    <AtSwitch*/}
+                {/*        disabled={!connected}*/}
+                {/*        title="开关机"*/}
+                {/*        onChange={(value) => sendCommand(value ? commandCodeMap.openDevice : commandCodeMap.closeDevice)}*/}
+                {/*    />*/}
+                {/*</View>*/}
+                <View className="switch-item on" onClick={() => sendCommand(commandCodeMap.openDevice)}>开</View>
+                <View className="switch-item off" onClick={() => sendCommand(commandCodeMap.closeDevice)}>关</View>
             </View>
         </View>
     )

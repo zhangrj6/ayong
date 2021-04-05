@@ -9,10 +9,9 @@ import './index.scss'
 function Device() {
     const router = useRouter();
     const { deviceId, name } = router.params;
-    const [connectLoading, setConnectLoading] = useState(false);
     const {
         connected,
-        message,
+        connectLoading,
         connectDevice,
         disconnectDevice,
         sendCommander,
@@ -22,7 +21,7 @@ function Device() {
     useEffect(() => {
         Taro.setNavigationBarTitle({ title: name })
         // 进入设备自动连接设备
-        connectDevice(deviceId, setConnectLoading);
+        connectDevice(deviceId);
         return () => {
             // 退出当前页面时，若连接未断开则断开连接
             if (connected) {
@@ -31,21 +30,12 @@ function Device() {
         }
     }, [])
 
-    useDidHide(() => {
-        // 手机息屏时也会调用，由于此为稍高频操作，故暂不断开设备连接
-        // disconnectDevice(deviceId);
-    });
-
     // 点击连接/断开连接，loading
     const handleConnect = useCallback(() => {
-        // 在连接状态中，不支持新建或断开连接
-        if (!connectLoading) {
-
-        }
         if (connected) {
             disconnectDevice(deviceId);
         } else {
-            connectDevice(deviceId, setConnectLoading);
+            connectDevice(deviceId,);
         }
     }, [connected])
 
@@ -56,6 +46,7 @@ function Device() {
             <ConfigParams connected={connected} sendCommand={sendCommander} receiveData={receiveData} />
             <Button
                 loading={connectLoading}
+                disabled={connectLoading}
                 className={`connect-btn ${connected ? 'on' : ''}`}
                 onClick={handleConnect}
             >
