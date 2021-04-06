@@ -182,7 +182,16 @@ function ConfigParams({ connected, sendCommand, receiveData }) {
         setShowModal(true);
     }, [standbyShutdown]);
 
-
+    // 修改数据确定操作
+    const sendUpdate = useCallback(() => {
+        let value = modalContent.param.value;
+        if (modalContent.component === 'numberInput' && value < modalContent.param.min) {
+            value = modalContent.param.min;
+        }
+        sendCommand(modalContent.command(value));
+        Taro.atMessage({ message: `设置${modalHeader}` })
+        setShowModal(false)
+    }, [modalContent])
     return (
         <View>
             <AtAccordion
@@ -233,7 +242,6 @@ function ConfigParams({ connected, sendCommand, receiveData }) {
                             type="digit"
                             size="large"
                             className="number-input"
-                            min={modalContent.param.min}
                             max={modalContent.param.max}
                             step={modalContent.param.step}
                             value={modalContent.param.value}
@@ -251,14 +259,7 @@ function ConfigParams({ connected, sendCommand, receiveData }) {
                 </AtModalContent>
                 <AtModalAction>
                     <Button onClick={() => setShowModal(false)}>取消</Button>
-                    <Button disabled={!connected} onClick={() => {
-                        const value = modalContent.param.value;
-                        sendCommand(modalContent.command(value));
-                        Taro.atMessage({ message: `设置${modalHeader}` })
-                        setShowModal(false)
-                    }}>
-                        确定
-                    </Button>
+                    <Button disabled={!connected} onClick={sendUpdate}>确定</Button>
                 </AtModalAction>
             </AtModal>
         </View>

@@ -24,9 +24,8 @@ function Device() {
         connectDevice(deviceId);
         return () => {
             // 退出当前页面时，若连接未断开则断开连接
-            if (connected) {
-                disconnectDevice(deviceId);
-            }
+            console.log('退出设备页面')
+            disconnectDevice(deviceId);
         }
     }, [])
 

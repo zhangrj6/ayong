@@ -46,85 +46,95 @@ export function useBlueToothDevice() {
         Taro.createBLEConnection({
             deviceId,
             success: () => {
-                setDeviceId(deviceId);
-                // 读取蓝牙设备下的服务列表
-                Taro.getBLEDeviceServices({
-                    deviceId,
-                    success: (resServices) => {
-                        // 查询该设备的服务列表中是否存在所设置的服务
-                        const service = resServices.services.find(item => item.uuid === uuid.serviceuuid);
-                        if (service) {
-                            setServiceId(service.uuid);
-                            // 存在则继续查询特征值是否匹配
-                            Taro.getBLEDeviceCharacteristics({
-                                deviceId,
-                                serviceId: service.uuid,
-                                success: (resCharacteristics) => {
-                                    resCharacteristics.characteristics.forEach(item => {
-                                        // 设置写操作特征值
-                                        if (item.properties.write && item.uuid === uuid.txduuid) {
-                                            setCharacterId(item.uuid);
-                                        }
-                                        // 是否启用低功耗蓝牙设备特征值变化时的 notify 功能
-                                        if (item.properties.notify || item.properties.indicate) {
-                                            if (item.uuid === uuid.rxduuid) {
-                                                Taro.notifyBLECharacteristicValueChange({
-                                                    deviceId,
-                                                    serviceId: service.uuid,
-                                                    characteristicId: item.uuid,
-                                                    state: true,
-                                                    success: () => {
-                                                        setConnected(true);
-                                                        setConnectLoading(false);
-                                                    },
-                                                    fail: (error) => {
-                                                        console.error('开启特征值notify功能失败：', error);
-                                                        disconnectDevice(deviceId, false);
-                                                    }
-                                                })
-                                            }
-                                        }
-                                    })
-                                },
-                                fail: (error) => {
-                                    console.error('获取蓝牙设备服务下特征值失败：', error);
-                                    disconnectDevice(deviceId, false);
-                                }
-                            })
-                            // 获取设备推送数据
-                            Taro.onBLECharacteristicValueChange(res => {
-                                const nowRecHex = ab2hex(res.value);
-                                if (uuid.rxduuid !== res.characteristicId) return;
-                                // 数据处理
-                                processReceiveData(nowRecHex)
-                            })
-                        } else {
-                            console.error('蓝牙设备下不存在指定服务');
-                            disconnectDevice(deviceId, false);
-                        }
-                    },
-                    fail: error => {
-                        console.error('获取设备服务列表：', error);
-                        disconnectDevice(deviceId, false);
-                    }
-                })
-                // 监听连接状态的改变
-                if(wx.onBLEConnectionStateChange && isActive) {
-                    wx.onBLEConnectionStateChange((res) => {
-                        console.log('蓝牙连接状态改变：', res);
-                        // 自动重连，但不重复监听
-                        if(!res.connected) {
-                            connectDevice(deviceId, false);
-                        }
-                    })
-                }
+                handleConnect(deviceId, isActive);
             },
             fail: error => {
                 console.log('连接低功耗蓝牙设备失败：', error)
-                connectDevice(deviceId);
+                // 若失败原因为已连接，则直接进入下一步
+                if (error.errCode === -1) {
+                    handleConnect(deviceId, isActive);
+                } else {
+                    connectDevice(deviceId, false);
+                }
             }
         })
     }, []);
+
+    // 处理蓝牙服务及特征值
+    const handleConnect = useCallback((deviceId, isActive) => {
+        setDeviceId(deviceId);
+        // 读取蓝牙设备下的服务列表
+        Taro.getBLEDeviceServices({
+            deviceId,
+            success: (resServices) => {
+                // 查询该设备的服务列表中是否存在所设置的服务
+                const service = resServices.services.find(item => item.uuid === uuid.serviceuuid);
+                if (service) {
+                    setServiceId(service.uuid);
+                    // 存在则继续查询特征值是否匹配
+                    Taro.getBLEDeviceCharacteristics({
+                        deviceId,
+                        serviceId: service.uuid,
+                        success: (resCharacteristics) => {
+                            resCharacteristics.characteristics.forEach(item => {
+                                // 设置写操作特征值
+                                if (item.properties.write && item.uuid === uuid.txduuid) {
+                                    setCharacterId(item.uuid);
+                                }
+                                // 是否启用低功耗蓝牙设备特征值变化时的 notify 功能
+                                if (item.properties.notify || item.properties.indicate) {
+                                    if (item.uuid === uuid.rxduuid) {
+                                        Taro.notifyBLECharacteristicValueChange({
+                                            deviceId,
+                                            serviceId: service.uuid,
+                                            characteristicId: item.uuid,
+                                            state: true,
+                                            success: () => {
+                                                setConnected(true);
+                                                setConnectLoading(false);
+                                            },
+                                            fail: (error) => {
+                                                console.error('开启特征值notify功能失败：', error);
+                                                disconnectDevice(deviceId, false);
+                                            }
+                                        })
+                                    }
+                                }
+                            })
+                        },
+                        fail: (error) => {
+                            console.error('获取蓝牙设备服务下特征值失败：', error);
+                            disconnectDevice(deviceId, false);
+                        }
+                    })
+                    // 获取设备推送数据
+                    Taro.onBLECharacteristicValueChange(res => {
+                        const nowRecHex = ab2hex(res.value);
+                        if (uuid.rxduuid !== res.characteristicId) return;
+                        // 数据处理
+                        processReceiveData(nowRecHex)
+                    })
+                } else {
+                    console.error('蓝牙设备下不存在指定服务');
+                    disconnectDevice(deviceId, false);
+                }
+            },
+            fail: error => {
+                console.error('获取设备服务列表：', error);
+                disconnectDevice(deviceId, false);
+            }
+        })
+        // 监听连接状态的改变
+        if(wx.onBLEConnectionStateChange && isActive) {
+            wx.onBLEConnectionStateChange((res) => {
+                console.log('蓝牙连接状态改变：', res);
+                // 自动重连，但不重复监听
+                if(!res.connected) {
+                    connectDevice(deviceId, false);
+                }
+            })
+        }
+    }, [])
 
     // 向设备发送指令
     const sendCommander = useCallback((command) => {
