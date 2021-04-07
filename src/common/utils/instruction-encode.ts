@@ -7,7 +7,7 @@ export function genCheckCode(list) {
  */
 function EOR(list) {
     const checkCode = genCheckCode(list);
-    return [...list, checkCode].join(' ');
+    return [...list, `0${checkCode}`.slice(-2)].join(' ');
 }
 
 /**
@@ -23,6 +23,7 @@ export function genSetRatedCurrentCode(value) {
     codeList.push(hexValue.substr(2, 2));
     // 额定电流高八位
     codeList.push(hexValue.substr(0, 2));
+    console.log('EOR(codeList)', EOR(codeList))
     return EOR(codeList);
 }
 

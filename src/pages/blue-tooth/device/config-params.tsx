@@ -188,6 +188,7 @@ function ConfigParams({ connected, sendCommand, receiveData }) {
         if (modalContent.component === 'numberInput' && value < modalContent.param.min) {
             value = modalContent.param.min;
         }
+        console.log('设置的值：', value)
         sendCommand(modalContent.command(value));
         Taro.atMessage({ message: `设置${modalHeader}` })
         setShowModal(false)
