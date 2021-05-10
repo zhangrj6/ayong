@@ -29,15 +29,15 @@ export function parseLed(led, prefix = Prefix.SINGLE_PHASE) {
     const systemInfo = Taro.getStorageSync('systemInfo');
     const isDigital = systemInfo.softwareVersion.toString()[1] === '5';
     // 处理灯色逻辑
-    if (prefix === Prefix.SINGLE_PHASE) {
-        ledObj.run = led & 0x01 ? color.green : color.grep;
-        ledObj.standby = led & 0x02 ? color.yellow : color.grep;
-        ledObj.fault = [color.grep, color.red, color.blue, color.purple][(led & 0x0c) >> 2];
+    if (isDigital) {
+        ledObj.run = led & 0x08 ? color.green : color.grep;
+        ledObj.standby = led & 0x10 ? color.yellow : color.grep;
+        ledObj.fault = [color.white, color.grep, color.grep, color.green, color.purple, color.blue, color.red, color.grep][(led & 0x07)];
     } else {
-        if (isDigital) {
-            ledObj.run = led & 0x08 ? color.green : color.grep;
-            ledObj.standby = led & 0x10 ? color.yellow : color.grep;
-            ledObj.fault = [color.white, color.grep, color.grep, color.green, color.purple, color.blue, color.red, color.grep][(led & 0x07)];
+        if(prefix === Prefix.SINGLE_PHASE) {
+            ledObj.run = led & 0x01 ? color.green : color.grep;
+            ledObj.standby = led & 0x02 ? color.yellow : color.grep;
+            ledObj.fault = [color.grep, color.red, color.blue, color.purple][(led & 0x0c) >> 2];
         } else {
             ledObj.run = led & 0x02 ? color.green : color.grep;
             ledObj.standby = led & 0x04 ? color.yellow : color.grep;

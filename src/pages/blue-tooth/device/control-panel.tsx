@@ -84,7 +84,10 @@ function ControlPanel({ sendCommand, connected, receiveData }) {
                 {/*        onChange={(value) => sendCommand(value ? commandCodeMap.openDevice : commandCodeMap.closeDevice)}*/}
                 {/*    />*/}
                 {/*</View>*/}
-                <View className="switch-item on" onClick={() => sendCommand(commandCodeMap.openDevice)}>开</View>
+                <View className="switch-item on" onClick={() => {
+                    if (wx.vibrateShort) wx.vibrateShort({ type: 'medium'});
+                    sendCommand(commandCodeMap.openDevice)
+                }}>开</View>
                 <View className="switch-item off" onClick={() => sendCommand(commandCodeMap.closeDevice)}>关</View>
             </View>
         </View>
