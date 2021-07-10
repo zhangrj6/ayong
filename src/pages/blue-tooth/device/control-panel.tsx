@@ -3,39 +3,41 @@ import { Text, View } from "@tarojs/components";
 import { AtIcon, AtSwitch } from "taro-ui";
 import { commandCodeMap, InstructionMap } from '@common/const/command-code';
 import { parseLed, color } from '@common/utils/code-handle';
+import { useRoundRobin } from '@hooks/tools';
 import './index.scss';
 
 function ControlPanel({ sendCommand, connected, receiveData }) {
     const [current, setCurrent] = useState('0.0');
+    const [currentL2, setCurrentL2] = useState('');
+    const [currentL3, setCurrentL3] = useState('');
     const [voltage, setVoltage] = useState('0.0');
     const [leakage, setLeakage] = useState('0.0');
+    const [deviceVoltage, setDeviceVoltage] = useState('不支持');
     const [led, setLed] = useState({
         run: color.grep,
         standby: color.grep,
         fault: color.grep,
         loss: '',
     })
+    const { proceed, suspend } = useRoundRobin(() => {
+        if (connected) sendCommand(commandCodeMap.realTimeCommunication);
+    })
 
     // 实时通信副作用逻辑
     useEffect(() => {
-        let timer;
-        if (connected) {
-            // 每2s获取一次实时数据
-            timer = setInterval(() => {
-                sendCommand(commandCodeMap.realTimeCommunication);
-            }, 400);
-        }
-        return () => clearInterval(timer);
-    }, [connected]);
-
-
+        proceed();
+        return () => suspend();
+    }, []);
 
     useEffect(() => {
         if (connected && receiveData.id === InstructionMap.GET_REALTIME_INFO) {
-            const { current, voltage, leakage, led } = receiveData.data;
+            const { current, currentL2, currentL3, voltage, leakage, deviceVoltage, led } = receiveData.data;
             setCurrent(current.toFixed(1));
+            setCurrentL2(currentL2);
+            setCurrentL3(currentL3);
             setVoltage(voltage.toFixed(1));
-            setLeakage(leakage.toFixed(1));
+            setLeakage(leakage);
+            setDeviceVoltage(deviceVoltage);
             const ledObj = parseLed(parseInt(led, 16), receiveData.prefix)
             setLed(ledObj);
         }
@@ -66,15 +68,27 @@ function ControlPanel({ sendCommand, connected, receiveData }) {
                 }
             </View>
             <View className="indicator-info">
-                <View>
-                    电流：<span>{current}</span>A
+                <View className="data-item">
+                    设备电流：
+                    { (currentL2 && currentL3) ? (
+                        <span>
+                            <span>L1</span>{current}A
+                            <span>L2</span>{currentL2}A
+                            <span>L3</span>{currentL3}A
+                        </span>
+                    ) : <span>{current}A</span>}
                 </View>
                 <View>
-                    电压：<span>{voltage}</span>V
+                    主板电压：<span>{voltage}</span>V
                 </View>
                 <View>
-                    漏电：<span>{leakage}</span>mA
+                    设备电压：<span>{deviceVoltage}</span>V
                 </View>
+                { leakage && (
+                    <View>
+                        设备漏电：<span>{leakage}</span>mA
+                    </View>
+                )}
             </View>
             <View className="switch-group">
                 {/*<View>*/}
@@ -87,8 +101,12 @@ function ControlPanel({ sendCommand, connected, receiveData }) {
                 <View className="switch-item on" onClick={() => {
                     if (wx.vibrateShort) wx.vibrateShort({ type: 'medium'});
                     sendCommand(commandCodeMap.openDevice)
+                    Taro.atMessage({ message: '开机' })
                 }}>开</View>
-                <View className="switch-item off" onClick={() => sendCommand(commandCodeMap.closeDevice)}>关</View>
+                <View className="switch-item off" onClick={() => {
+                    sendCommand(commandCodeMap.closeDevice)
+                    Taro.atMessage({ message: '关机' })
+                }}>关</View>
             </View>
         </View>
     )

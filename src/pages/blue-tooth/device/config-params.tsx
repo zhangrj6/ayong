@@ -2,7 +2,6 @@ import Taro, {useState, useEffect, useCallback} from "@tarojs/taro";
 import {
     AtAccordion, AtList, AtListItem, AtInputNumber, AtRadio,
     AtModal, AtModalHeader, AtModalContent, AtModalAction,
-    AtButton,
 } from 'taro-ui'
 import { View, Button } from '@tarojs/components'
 import { commandCodeMap, InstructionMap } from '@common/const/command-code';

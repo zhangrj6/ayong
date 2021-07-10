@@ -132,18 +132,41 @@ function parseStandbyShutdown(code) {
 
 // 读取实时数据信息
 function parseRealTimeInfo(code) {
+    console.log('实时数据信息', code)
     const commonInfo = parseCommonInfo(code);
     // 获取全局存储的配置数据
     const systemInfo = Taro.getStorageSync('systemInfo');
+    /**
+     * 设备实时数据
+     */
+    const runtime = {
+        hour: systemInfo.runTime.hour,
+        minute: parseInt(code[11], 16),
+        second: parseInt(code[12], 16)
+    }
+    /**
+     * 电器实时数据
+     */
     const currentRate = systemInfo.currentRate || 74; // 电流倍率
     const leakageCurrent = systemInfo.leakageCurrent || 1023; // 漏电参考值
-    const resistanceRate = systemInfo.standby || 6; // 电阻比率
+    const resistanceRate = systemInfo.standby || 11; // 电阻比率
+    // 是否显示漏电电流
+    const isShowLeakage = parse2Byte(code[6], code[5], 1) > 10;
+    // 主板电压
+    const boardVoltage = parse2Byte(code[8], code[7], 1023 / (3.3 * resistanceRate));
+    // 获取软件版本号，来判断是变压器，还是开关电源(5,6变压器，其余为开关电源)
+    const vchanger = [5,6];
+    const flag = systemInfo.softwareVersion.toString()[1];
     return {
         ...commonInfo,
         data: {
+            runtime,
             current: parse2Byte(code[4], code[3], currentRate / 10),
-            leakage: parse2Byte(code[6], code[5], leakageCurrent / 30),
-            voltage: parse2Byte(code[8], code[7], 1023 / (3.3 * resistanceRate)),
+            currentL2: commonInfo.prefix === 'FA' ? parse2Byte(code[18], code[17], currentRate / 10).toFixed(1) : '',
+            currentL3: commonInfo.prefix === 'FA' ? parse2Byte(code[20], code[19], currentRate / 10).toFixed(1) : '',
+            leakage: isShowLeakage ? parse2Byte(code[6], code[5], leakageCurrent / 30).toFixed(1) : '',
+            voltage: boardVoltage,
+            deviceVoltage: vchanger.findIndex(e => e == flag) > -1 ? (boardVoltage * 220 / 12).toFixed(1) : '不支持',
             led: code[9],
         }
     }

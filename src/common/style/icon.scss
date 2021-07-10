@@ -1,11 +1,8 @@
 @font-face {
-  font-family: 'lwicon';  /* project id 1307911 */
-  src: url('//at.alicdn.com/t/font_1307911_ssogzw6h4qg.eot');
-  src: url('//at.alicdn.com/t/font_1307911_ssogzw6h4qg.eot?#iefix') format('embedded-opentype'),
-  url('//at.alicdn.com/t/font_1307911_ssogzw6h4qg.woff2') format('woff2'),
-  url('//at.alicdn.com/t/font_1307911_ssogzw6h4qg.woff') format('woff'),
-  url('//at.alicdn.com/t/font_1307911_ssogzw6h4qg.ttf') format('truetype'),
-  url('//at.alicdn.com/t/font_1307911_ssogzw6h4qg.svg#lwicon') format('svg');
+  font-family: 'lwicon';  /* Project id 1307911 */
+  src: url('//at.alicdn.com/t/font_1307911_2dhkeafzcf6.woff2?t=1625913732397') format('woff2'),
+  url('//at.alicdn.com/t/font_1307911_2dhkeafzcf6.woff?t=1625913732397') format('woff'),
+  url('//at.alicdn.com/t/font_1307911_2dhkeafzcf6.ttf?t=1625913732397') format('truetype');
 }
 
 .lw {
@@ -24,6 +21,8 @@
 .lw-lanya:before{ content: '\ec4a'}
 .lw-setting:before{ content: '\e78e'}
 .lw-indicator-light:before{ content: '\e830'}
+.lw-desktop:before{ content: '\e842'}
+.lw-duration:before{ content: '\e7ed'}
 /* 额定电流 */
 .lw-rated-current:before{ content: '\e665'}
 .lw-delay-shutdown:before{ content: '\e600'}

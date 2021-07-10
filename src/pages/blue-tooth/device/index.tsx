@@ -4,6 +4,7 @@ import { AtMessage } from 'taro-ui';
 import { useBlueToothDevice } from "@hooks/bluetooth-device";
 import ControlPanel from "./control-panel";
 import ConfigParams from "./config-params";
+import StatusInfo from "./status-info";
 import './index.scss'
 
 function Device() {
@@ -43,6 +44,7 @@ function Device() {
             <AtMessage />
             <ControlPanel connected={connected} sendCommand={sendCommander} receiveData={receiveData} />
             <ConfigParams connected={connected} sendCommand={sendCommander} receiveData={receiveData} />
+            <StatusInfo connected={connected} receiveData={receiveData} />
             <Button
                 loading={connectLoading}
                 disabled={connectLoading}

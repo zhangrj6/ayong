@@ -49,6 +49,17 @@
   }
   .indicator-info {
     padding: 4px 8px;
+    .data-item {
+      span {
+        span {
+          color: #1E90FF;
+          margin: 0 16px;
+          &:first-child {
+            margin-left: 0;
+          }
+        }
+      }
+    }
   }
   .switch-group {
     border-top: 1px solid #1E90FF;
