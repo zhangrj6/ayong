@@ -12,6 +12,7 @@ function ControlPanel({ sendCommand, connected, receiveData }) {
     const [currentL3, setCurrentL3] = useState('');
     const [voltage, setVoltage] = useState('0.0');
     const [leakage, setLeakage] = useState('0.0');
+    const [realtime, setRealtime] = useState(true);
     const [deviceVoltage, setDeviceVoltage] = useState('不支持');
     const [led, setLed] = useState({
         run: color.grep,
@@ -91,13 +92,16 @@ function ControlPanel({ sendCommand, connected, receiveData }) {
                 )}
             </View>
             <View className="switch-group">
-                {/*<View>*/}
-                {/*    <AtSwitch*/}
-                {/*        disabled={!connected}*/}
-                {/*        title="开关机"*/}
-                {/*        onChange={(value) => sendCommand(value ? commandCodeMap.openDevice : commandCodeMap.closeDevice)}*/}
-                {/*    />*/}
-                {/*</View>*/}
+                <AtSwitch
+                    disabled={!connected}
+                    title="实时数据"
+                    checked={realtime}
+                    onChange={value => {
+                        if (value) proceed();
+                        else suspend();
+                        setRealtime(value)
+                    }}
+                />
                 <View className="switch-item on" onClick={() => {
                     if (wx.vibrateShort) wx.vibrateShort({ type: 'medium'});
                     sendCommand(commandCodeMap.openDevice)

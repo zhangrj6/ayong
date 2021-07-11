@@ -138,9 +138,11 @@ export function useBlueToothDevice() {
 
     // 向设备发送指令
     const sendCommander = useCallback((command) => {
+        console.log('connected', connected)
         if (!connected){
             return;
         }
+        console.log('command', command)
         let hex = command || ''; //要发送的数据
         let buffer1;
         const typedArray = new Uint8Array(regSendData(hex).map(function (h) {
@@ -148,7 +150,8 @@ export function useBlueToothDevice() {
         }));
         buffer1 = typedArray.buffer;
         if (buffer1 === null) return;
-        // const sendTime = new Date().getTime();
+        console.log('buffer1', buffer1)
+        const sendTime = new Date().getTime();
         Taro.writeBLECharacteristicValue({
             deviceId,
             serviceId,
@@ -156,8 +159,8 @@ export function useBlueToothDevice() {
             value: buffer1,
             success: () => {
                 // 测试指令发送延时
-                // const sentTime = new Date().getTime();
-                // console.log('指令发送成功', sentTime - sendTime)
+                const sentTime = new Date().getTime();
+                console.log('指令发送成功', sentTime - sendTime)
             },
             fail: () => err => console.error('写入特征值', err)
         })

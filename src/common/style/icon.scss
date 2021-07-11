@@ -1,8 +1,8 @@
 @font-face {
   font-family: 'lwicon';  /* Project id 1307911 */
-  src: url('//at.alicdn.com/t/font_1307911_2dhkeafzcf6.woff2?t=1625913732397') format('woff2'),
-  url('//at.alicdn.com/t/font_1307911_2dhkeafzcf6.woff?t=1625913732397') format('woff'),
-  url('//at.alicdn.com/t/font_1307911_2dhkeafzcf6.ttf?t=1625913732397') format('truetype');
+  src: url('//at.alicdn.com/t/font_1307911_o19gmdr13bp.woff2?t=1625933949999') format('woff2'),
+  url('//at.alicdn.com/t/font_1307911_o19gmdr13bp.woff?t=1625933949999') format('woff'),
+  url('//at.alicdn.com/t/font_1307911_o19gmdr13bp.ttf?t=1625933949999') format('truetype');
 }
 
 .lw {
@@ -30,4 +30,7 @@
 .lw-monitor-period:before{ content: '\e6d5'}
 .lw-standby-shutdown:before{ content: '\e61c'}
 
+.lw-overload:before{ content: '\e617'}
+.lw-leakage:before{ content: '\e67e'}
+.lw-auto:before{ content: '\e63d'}
 

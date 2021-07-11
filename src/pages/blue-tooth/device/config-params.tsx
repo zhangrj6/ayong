@@ -11,7 +11,13 @@ import {
     genSetDelayStartup,
     genSetMonitorPeriod,
     genSetStandbyShutdown,
-} from '@common/utils/instruction-encode';
+    genSwitchOverload,
+    genSwitchLeakage,
+    genSwitchAuto,
+    genMutiMachineOneGun,
+    genExternalSwitch,
+} from '@common/utils/instruction-encode'
+import { cfgMutlMachine, cfgExternalSwitch } from '@common/utils/code-handle'
 
 interface IModalContent {
     component: string,
@@ -21,11 +27,16 @@ interface IModalContent {
 
 function ConfigParams({ connected, sendCommand, receiveData }) {
     const [open, setOpen] = useState(false);
+    const [isLeakage, setIsLeakage] = useState(false);
+    const [isOverload, setIsOverload] = useState(false);
+    const [isAuto, setIsAuto] = useState(false);
     const [ratedCurrent, setRatedCurrent] = useState(15);
     const [delayShutdown, setDelayShutdown] = useState(4);
     const [delayStartup, setDelayStartup] = useState(0.5);
     const [monitorPeriod, setMonitorPeriod] = useState(8);
     const [standbyShutdown, setStandbyShutdown] = useState(2);
+    const [externalSwitch, setExternalSwitch] = useState(0);
+    const [mutlMachineOneGun, setMutlMachineOneGun] = useState(0);
     const [showModal, setShowModal] = useState(false);
     const [modalHeader, setModalHeader] = useState('');
     const [modalContent, setModalContent] = useState<IModalContent>({
@@ -44,6 +55,7 @@ function ConfigParams({ connected, sendCommand, receiveData }) {
     // 处理参数设置返回值
     useEffect(() => {
         if (receiveData && receiveData.data) {
+            console.log('receiveData.data', receiveData.data)
             switch (receiveData.id) {
                 case InstructionMap.SET_RATED_CURRENT:
                     setRatedCurrent(receiveData.data.ratedCurrent);
@@ -64,6 +76,26 @@ function ConfigParams({ connected, sendCommand, receiveData }) {
                 case InstructionMap.SET_STANDBY_SHUTDOWN:
                     setStandbyShutdown(Number(receiveData.data.standbyShutdown)/60);
                     Taro.atMessage({ message: '待机自动关机设置成功', type: 'success' });
+                    break;
+                case InstructionMap.SET_MUTI_MACHINE:
+                    setMutlMachineOneGun(receiveData.data.switchStatus);
+                    Taro.atMessage({ message: '一机多枪设置成功', type: 'success' });
+                    break;
+                case InstructionMap.SET_EXTERNAL_SWITCH:
+                    setExternalSwitch(receiveData.data.switchStatus);
+                    Taro.atMessage({ message: '外部开关设置成功', type: 'success' });
+                    break;
+                case InstructionMap.SET_LEAKAGE:
+                    setIsLeakage(receiveData.data.switchStatus !== 1);
+                    Taro.atMessage({ message: '漏电开关设置成功', type: 'success' });
+                    break;
+                case InstructionMap.SET_OVERLOAD:
+                    setIsOverload(receiveData.data.switchStatus !== 1);
+                    Taro.atMessage({ message: '过载开关设置成功', type: 'success' });
+                    break;
+                case InstructionMap.SET_AUTO:
+                    setIsAuto([1,2].findIndex(e => e === receiveData.data.switchStatus) < 0);
+                    Taro.atMessage({ message: '自动开关设置成功', type: 'success' });
                     break;
                 case InstructionMap.GET_PARAM_INFO:
                     setDelayShutdown(receiveData.data.delayShutdown);
@@ -180,6 +212,32 @@ function ConfigParams({ connected, sendCommand, receiveData }) {
         })
         setShowModal(true);
     }, [standbyShutdown]);
+    // 修改一机多枪配置
+    const changeMutiMachineOneGun = useCallback(() => {
+        setModalHeader('一机多枪配置');
+        setModalContent({
+            component: 'radio',
+            command: genMutiMachineOneGun,
+            param: {
+                options: cfgMutlMachine,
+                value: mutlMachineOneGun,
+            }
+        })
+        setShowModal(true);
+    }, [mutlMachineOneGun]);
+    // 修改一机多枪配置
+    const changeExternalSwitch = useCallback(() => {
+        setModalHeader('外接开关配置');
+        setModalContent({
+            component: 'radio',
+            command: genExternalSwitch,
+            param: {
+                options: cfgExternalSwitch,
+                value: externalSwitch,
+            }
+        })
+        setShowModal(true);
+    }, [externalSwitch]);
 
     // 修改数据确定操作
     const sendUpdate = useCallback(() => {
@@ -187,11 +245,26 @@ function ConfigParams({ connected, sendCommand, receiveData }) {
         if (modalContent.component === 'numberInput' && value < modalContent.param.min) {
             value = modalContent.param.min;
         }
-        console.log('设置的值：', value)
         sendCommand(modalContent.command(value));
         Taro.atMessage({ message: `设置${modalHeader}` })
         setShowModal(false)
     }, [modalContent])
+
+    const setOverload = useCallback((event) => {
+        const code = genSwitchOverload(event.target.value);
+        sendCommand(code)
+    }, [connected])
+
+    const setLeakage = useCallback((event) => {
+        const code = genSwitchLeakage(event.target.value);
+        sendCommand(code)
+    }, [connected])
+
+    const setAuto = useCallback((event) => {
+        const code = genSwitchAuto(event.target.value);
+        sendCommand(code)
+    }, [connected])
+
     return (
         <View>
             <AtAccordion
@@ -231,6 +304,39 @@ function ConfigParams({ connected, sendCommand, receiveData }) {
                         iconInfo={{ size: 20, color: '#346fc2', prefixClass: 'lw', value: 'standby-shutdown' }}
                         extraText={standbyShutdown > 0 ? `${standbyShutdown}小时` : '不启用'}
                         onClick={changeStandbyShutdown}
+                    />
+                    <AtListItem
+                        title='一机多枪配置'
+                        iconInfo={{ size: 20, color: '#346fc2', prefixClass: 'lw', value: 'standby-shutdown' }}
+                        extraText={cfgMutlMachine.find(e => e.value == mutlMachineOneGun).label}
+                        onClick={changeMutiMachineOneGun}
+                    />
+                    <AtListItem
+                        title='外接开关配置'
+                        iconInfo={{ size: 20, color: '#346fc2', prefixClass: 'lw', value: 'standby-shutdown' }}
+                        extraText={cfgExternalSwitch.find(e => e.value == externalSwitch).label}
+                        onClick={changeExternalSwitch}
+                    />
+                    <AtListItem
+                        title='过载开关'
+                        iconInfo={{ size: 20, color: '#346fc2', prefixClass: 'lw', value: 'overload' }}
+                        isSwitch
+                        switchIsCheck={isOverload}
+                        onSwitchChange={setOverload}
+                    />
+                    <AtListItem
+                        title='漏电开关'
+                        iconInfo={{ size: 20, color: '#346fc2', prefixClass: 'lw', value: 'leakage' }}
+                        isSwitch
+                        switchIsCheck={isLeakage}
+                        onSwitchChange={setLeakage}
+                    />
+                    <AtListItem
+                        title='自动开关'
+                        iconInfo={{ size: 20, color: '#346fc2', prefixClass: 'lw', value: 'auto' }}
+                        isSwitch
+                        switchIsCheck={isAuto}
+                        onSwitchChange={setAuto}
                     />
                 </AtList>
             </AtAccordion>

@@ -13,6 +13,11 @@ export const InstructionMap = {
     SET_DELAY_STARTUP: 'A2',
     SET_MONITOR_PERIOD: 'A4',
     SET_STANDBY_SHUTDOWN: 'A5',
+    SET_OVERLOAD: 'AA',
+    SET_LEAKAGE: 'AB',
+    SET_AUTO: 'AC',
+    SET_EXTERNAL_SWITCH: 'B5',
+    SET_MUTI_MACHINE: 'A8',
     GET_PARAM_INFO: 'E1',
     GET_REALTIME_INFO: 'E2',
 }

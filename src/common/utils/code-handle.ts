@@ -47,3 +47,20 @@ export function parseLed(led, prefix = Prefix.SINGLE_PHASE) {
     }
     return ledObj;
 }
+
+
+// 一机多枪
+export const cfgMutlMachine = [
+    { label: '一机一枪不跳频', value: 0 },
+    { label: '互连一机多枪不跳频', value: 128 },
+    { label: '互连一机多枪带跳频', value: 144 },
+    { label: '独立一机多枪不跳频', value: 160 },
+    { label: '独立一机多枪带跳频', value: 176 },
+]
+
+// 外部开关
+export const cfgExternalSwitch = [
+    { label: '手自转换开关', value: 0 },
+    { label: '启动停止开关', value: 1 },
+    { label: '缺水保护开关', value: 2 },
+]

@@ -1,6 +1,10 @@
 @import "~@common/style/color";
 
 .device {
+  .device-status {
+    height: calc(100vh - 540px);
+    overflow-y: auto;
+  }
   .connect-btn {
     position: fixed;
     display: flex;
@@ -99,4 +103,7 @@
 }
 .at-modal__content {
   min-height: 0;
+}
+.at-list__item-extra {
+  max-width: 280px;
 }

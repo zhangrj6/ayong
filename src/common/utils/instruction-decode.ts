@@ -52,7 +52,7 @@ function parseParamInfo(code) {
             isOverload: parseInt(code[29], 16), // 过载保护开关
             isLeakage: parseInt(code[30], 16), // 漏电保护开关
             cntOverload: parseInt(code[31], 16), // 过载次数
-            cntLeakage: parseInt(code[32], 16), // 漏电保护开关
+            cntLeakage: parseInt(code[32], 16), // 漏电次数
             peakCurrent: parse2Byte(code[34], code[33], 1), // 峰值电流，除以电流倍率再乘以10，所得结果保留1位小数即峰值电流，值为0的时候显示无；
             isAutoFlag: parseInt(code[35], 16), // 1和2表示手动运行，0和其他值表示自动运行；
             controlConfig: parseInt(code[36], 16), // 控制配置
@@ -130,6 +130,16 @@ function parseStandbyShutdown(code) {
     }
 }
 
+// 开关
+function parseSwitch(code) {
+    const commonInfo = parseCommonInfo(code);
+    return {
+        ...commonInfo,
+        data: {
+            switchStatus: parse2Byte(code[4], code[3], 1).toString(),
+        }
+    }
+}
 // 读取实时数据信息
 function parseRealTimeInfo(code) {
     console.log('实时数据信息', code)
@@ -181,6 +191,11 @@ const instructionParseMap = {
     [InstructionMap.SET_DELAY_SHUTDOWN]: parseDelayShutdown, // 设置关枪停机延时
     [InstructionMap.SET_MONITOR_PERIOD]: parseMonitorPeriod, // 设置实时监测周期
     [InstructionMap.SET_STANDBY_SHUTDOWN]: parseStandbyShutdown, // 设置待机自动关机时间
+    [InstructionMap.SET_AUTO]: parseSwitch,
+    [InstructionMap.SET_LEAKAGE]: parseSwitch,
+    [InstructionMap.SET_OVERLOAD]: parseSwitch,
+    [InstructionMap.SET_EXTERNAL_SWITCH]: parseSwitch,
+    [InstructionMap.SET_MUTI_MACHINE]: parseSwitch,
 }
 
 // 解析指令返回码策略
