@@ -55,6 +55,7 @@ function BlueScan({ display }) {
 
     // 判断是否为iPhone
     useEffect(() => {
+        resetBluetoothModule();
         const res = Taro.getSystemInfoSync();
         setIsIphonex(res.model.search('iPhone X') != -1);
     }, [])
@@ -118,7 +119,7 @@ function BlueScan({ display }) {
                     disabled={!available}
                     onClick={() => startDevicesDiscovery(uuid.serviceuuid)}
                 >
-                    扫描设备
+                    {available ? '扫描设备' : '蓝牙未打开，请先打开蓝牙'}
                 </Button>
             </View>
             <AtActionSheet

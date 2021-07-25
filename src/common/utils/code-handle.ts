@@ -64,3 +64,11 @@ export const cfgExternalSwitch = [
     { label: '启动停止开关', value: 1 },
     { label: '缺水保护开关', value: 2 },
 ]
+
+export const cfgControlModel = [
+    { label: '自动无线控制', value: 0 },
+    { label: '自动常开控制', value: 1 },
+    { label: '自动常闭控制', value: 2 },
+    { label: '手动控制', value: 3 },
+    { label: '无线故障', value: 4 },
+]

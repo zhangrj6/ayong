@@ -16,7 +16,7 @@ interface Device {
  */
 export function useBlueToothAdapter({ duration = 20000 } = {}) {
     // 默认蓝牙适配器状态打开，在检测适配器状态后更新，便于应用侧页面提示
-    const [available, setAvailable] = useState(true);
+    const [available, setAvailable] = useState(false);
     const [discovering, setDiscovering] = useState(false);
     // 搜索持续定时器
     const [timerDiscovery, setTimerDiscovery] = useState<null|Timeout>(null);
@@ -35,6 +35,7 @@ export function useBlueToothAdapter({ duration = 20000 } = {}) {
                 // 初始化蓝牙模块
                 Taro.openBluetoothAdapter({
                     success: () => {
+                        setAvailable(true);
                         if (typeof Message === "function") {
                             Message({ message: '蓝牙设备重置完成' })
                         }
@@ -89,7 +90,10 @@ export function useBlueToothAdapter({ duration = 20000 } = {}) {
                         }
                     })
                 })
-            });
+            })
+            .catch(err => {
+                console.log('err', err)
+            })
     }, [devices]);
 
     return {
