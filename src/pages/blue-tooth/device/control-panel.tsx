@@ -85,16 +85,14 @@ function ControlPanel({ sendCommand, connected, receiveData }) {
                 <View>
                     设备电压：<span>{deviceVoltage}</span>V
                 </View>
-                { leakage && (
-                    <View>
-                        设备漏电：<span>{leakage}</span>mA
-                    </View>
-                )}
+                <View>
+                    设备漏电：<span>{leakage}</span>mA
+                </View>
             </View>
             <View className="switch-group">
                 <AtSwitch
                     disabled={!connected}
-                    title="实时数据"
+                    title="实时通信"
                     checked={realtime}
                     onChange={value => {
                         if (value) proceed();

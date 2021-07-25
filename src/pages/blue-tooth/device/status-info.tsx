@@ -10,15 +10,17 @@ export default function StatusInfo({ connected, receiveData }) {
     const [runtimeStr, setRuntimeStr] = useState('');
     const [cntOverload, setCntOverload] = useState('--');
     const [cntLeakage, setCntLeakage] = useState('--');
+    const [version, setVersion] = useState('--')
 
     useEffect(() => {
         if (connected && receiveData.id === InstructionMap.GET_REALTIME_INFO) {
             const { runtime } = receiveData.data;
             setRuntimeStr(`${runtime.hour}小时${runtime.minute}分钟${runtime.second}秒`);
         } else if (connected && receiveData.id === InstructionMap.GET_PARAM_INFO) {
-            const { cntOverload, cntLeakage } = receiveData.data;
+            const { cntOverload, cntLeakage, softwareVersion } = receiveData.data;
             setCntOverload(cntOverload);
             setCntLeakage(cntLeakage);
+            setVersion(softwareVersion)
         }
     }, [receiveData, connected])
 
@@ -47,6 +49,11 @@ export default function StatusInfo({ connected, receiveData }) {
                         title='过载次数'
                         iconInfo={{ size: 20, color: '#346fc2', prefixClass: 'lw', value: 'overload' }}
                         extraText={cntOverload + ''}
+                    />
+                    <AtListItem
+                        title='软件版本号'
+                        iconInfo={{ size: 20, color: '#346fc2', prefixClass: 'lw', value: 'overload' }}
+                        extraText={version}
                     />
                 </AtList>
             </AtAccordion>

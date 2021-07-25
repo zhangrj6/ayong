@@ -51,11 +51,11 @@ export function parseLed(led, prefix = Prefix.SINGLE_PHASE) {
 
 // 一机多枪
 export const cfgMutlMachine = [
-    { label: '一机一枪不跳频', value: 0 },
-    { label: '互连一机多枪不跳频', value: 128 },
-    { label: '互连一机多枪带跳频', value: 144 },
-    { label: '独立一机多枪不跳频', value: 160 },
-    { label: '独立一机多枪带跳频', value: 176 },
+    { label: '一机一枪', value: 0 },
+    { label: '一机多枪', value: 128 },
+    // { label: '互连一机多枪带跳频', value: 144 },
+    // { label: '独立一机多枪不跳频', value: 160 },
+    // { label: '独立一机多枪带跳频', value: 176 },
 ]
 
 // 外部开关

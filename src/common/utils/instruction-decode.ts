@@ -174,7 +174,7 @@ function parseRealTimeInfo(code) {
             current: parse2Byte(code[4], code[3], currentRate / 10),
             currentL2: commonInfo.prefix === 'FA' ? parse2Byte(code[18], code[17], currentRate / 10).toFixed(1) : '',
             currentL3: commonInfo.prefix === 'FA' ? parse2Byte(code[20], code[19], currentRate / 10).toFixed(1) : '',
-            leakage: isShowLeakage ? parse2Byte(code[6], code[5], leakageCurrent / 30).toFixed(1) : '',
+            leakage: isShowLeakage ? parse2Byte(code[6], code[5], leakageCurrent / 30).toFixed(1) : '0',
             voltage: boardVoltage,
             deviceVoltage: vchanger.findIndex(e => e == flag) > -1 ? (boardVoltage * 220 / 12).toFixed(1) : '不支持',
             led: code[9],

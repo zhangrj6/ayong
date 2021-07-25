@@ -150,7 +150,6 @@ export function useBlueToothDevice() {
         }));
         buffer1 = typedArray.buffer;
         if (buffer1 === null) return;
-        console.log('buffer1', buffer1)
         const sendTime = new Date().getTime();
         Taro.writeBLECharacteristicValue({
             deviceId,

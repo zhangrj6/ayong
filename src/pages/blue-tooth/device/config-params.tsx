@@ -27,6 +27,8 @@ interface IModalContent {
 
 function ConfigParams({ connected, sendCommand, receiveData }) {
     const [open, setOpen] = useState(false);
+    const [openAdvance, setOpenAdvance] = useState(false);
+    const [openRepair, setOpenRepair] = useState(false);
     const [isLeakage, setIsLeakage] = useState(false);
     const [isOverload, setIsOverload] = useState(false);
     const [isAuto, setIsAuto] = useState(false);
@@ -103,6 +105,11 @@ function ConfigParams({ connected, sendCommand, receiveData }) {
                     setDelayStartup(receiveData.data.delayStartup);
                     setStandbyShutdown(receiveData.data.standbyShutdown);
                     setMonitorPeriod(receiveData.data.monitorPeriod);
+                    setExternalSwitch(receiveData.data.externalSwitchType);
+                    setMutlMachineOneGun(parseInt(receiveData.data.wireless.config, 16));
+                    setIsOverload(receiveData.data.isOverload !== 1);
+                    setIsLeakage(receiveData.data.isLeakage !== 1);
+                    setIsAuto([1,2].findIndex(e => e === receiveData.data.isAutoFlag) < 0);
             }
             // Taro.atMessage({ message: `${modalHeader}设置成功`, type: 'success' });
         }
@@ -305,40 +312,56 @@ function ConfigParams({ connected, sendCommand, receiveData }) {
                         extraText={standbyShutdown > 0 ? `${standbyShutdown}小时` : '不启用'}
                         onClick={changeStandbyShutdown}
                     />
-                    <AtListItem
-                        title='一机多枪配置'
-                        iconInfo={{ size: 20, color: '#346fc2', prefixClass: 'lw', value: 'standby-shutdown' }}
-                        extraText={cfgMutlMachine.find(e => e.value == mutlMachineOneGun).label}
-                        onClick={changeMutiMachineOneGun}
-                    />
-                    <AtListItem
-                        title='外接开关配置'
-                        iconInfo={{ size: 20, color: '#346fc2', prefixClass: 'lw', value: 'standby-shutdown' }}
-                        extraText={cfgExternalSwitch.find(e => e.value == externalSwitch).label}
-                        onClick={changeExternalSwitch}
-                    />
-                    <AtListItem
-                        title='过载开关'
-                        iconInfo={{ size: 20, color: '#346fc2', prefixClass: 'lw', value: 'overload' }}
-                        isSwitch
-                        switchIsCheck={isOverload}
-                        onSwitchChange={setOverload}
-                    />
-                    <AtListItem
-                        title='漏电开关'
-                        iconInfo={{ size: 20, color: '#346fc2', prefixClass: 'lw', value: 'leakage' }}
-                        isSwitch
-                        switchIsCheck={isLeakage}
-                        onSwitchChange={setLeakage}
-                    />
-                    <AtListItem
-                        title='自动开关'
-                        iconInfo={{ size: 20, color: '#346fc2', prefixClass: 'lw', value: 'auto' }}
-                        isSwitch
-                        switchIsCheck={isAuto}
-                        onSwitchChange={setAuto}
-                    />
                 </AtList>
+            </AtAccordion>
+            <AtAccordion
+                open={openAdvance}
+                onClick={value => setOpenAdvance(value)}
+                isAnimation={false}
+                title='高级设置' icon={{ prefixClass: 'lw', value: 'advance-config', size: 25, color: '#6190e8' }}
+                note={connected ? '' : '请先连接设备，再进行配置'}
+            >
+                <AtListItem
+                    title='一机多枪配置'
+                    iconInfo={{ size: 20, color: '#346fc2', prefixClass: 'lw', value: 'multi-gun' }}
+                    extraText={cfgMutlMachine.find(e => e.value == mutlMachineOneGun).label}
+                    onClick={changeMutiMachineOneGun}
+                />
+                <AtListItem
+                    title='外接开关配置'
+                    iconInfo={{ size: 20, color: '#346fc2', prefixClass: 'lw', value: 'out-switch' }}
+                    extraText={cfgExternalSwitch.find(e => e.value == externalSwitch).label}
+                    onClick={changeExternalSwitch}
+                />
+            </AtAccordion>
+            <AtAccordion
+                open={openRepair}
+                onClick={value => setOpenRepair(value)}
+                isAnimation={false}
+                title='故障维修' icon={{ prefixClass: 'lw', value: 'repair-config', size: 25, color: '#6190e8' }}
+                note={connected ? '' : '请先连接设备，再进行配置'}
+            >
+                <AtListItem
+                    title='过载保护开关'
+                    iconInfo={{ size: 20, color: '#346fc2', prefixClass: 'lw', value: 'overload' }}
+                    isSwitch
+                    switchIsCheck={isOverload}
+                    onSwitchChange={setOverload}
+                />
+                <AtListItem
+                    title='漏电保护开关'
+                    iconInfo={{ size: 20, color: '#346fc2', prefixClass: 'lw', value: 'leakage' }}
+                    isSwitch
+                    switchIsCheck={isLeakage}
+                    onSwitchChange={setLeakage}
+                />
+                <AtListItem
+                    title='自动运行开关'
+                    iconInfo={{ size: 20, color: '#346fc2', prefixClass: 'lw', value: 'auto' }}
+                    isSwitch
+                    switchIsCheck={isAuto}
+                    onSwitchChange={setAuto}
+                />
             </AtAccordion>
             <AtModal isOpened={showModal}>
                 <AtModalHeader>{modalHeader}</AtModalHeader>

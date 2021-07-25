@@ -4,6 +4,9 @@
   .scroll-view {
     height: calc(100vh - 250px);
     overflow-y: auto;
+    &.iphonex {
+      height: calc(100vh - 315px);
+    }
   }
   .btn-group {
     display: flex;
@@ -11,6 +14,9 @@
     position: fixed;
     bottom: 114px;
     width: 100vw;
+    &.iphonex {
+      bottom: 172px;
+    }
     .scan-btn {
       margin: 0;
       flex-grow: 1;

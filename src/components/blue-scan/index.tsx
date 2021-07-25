@@ -19,6 +19,7 @@ function BlueScan({ display }) {
     const [firstRender, setFirstRender] = useState(true); // 首次渲染控制
     const [showSetting, setShowSetting] = useState(false); // 是否显示模组设置
     const [uuid, setUuid] = useState(bt4502Uuid);
+    const [isIphonex, setIsIphonex] = useState(false);
     const [showAction, setShowAction] = useState(false); // 隐藏操作按钮
     const {
         available,
@@ -52,6 +53,12 @@ function BlueScan({ display }) {
     // 修改首次渲染控制
     useEffect(() => setFirstRender(false), []);
 
+    // 判断是否为iPhone
+    useEffect(() => {
+        const res = Taro.getSystemInfoSync();
+        setIsIphonex(res.model.search('iPhone X') != -1);
+    }, [])
+
     // 持久化service uuid
     useEffect(() => Taro.setStorageSync('uuid', uuid), [uuid]);
 
@@ -69,7 +76,7 @@ function BlueScan({ display }) {
                 {available ? `已发现 ${devices.length} 个BLE设备` : '蓝牙适配器未开启或不可用'}
             </AtNoticebar>
             <View
-                className='scroll-view'
+                className={`scroll-view ${isIphonex ? 'iphonex' : ''}`}
             >
                 <AtList>
                     { devices.map((item, index) => (
@@ -89,7 +96,7 @@ function BlueScan({ display }) {
                     ))}
                 </AtList>
             </View>
-            <View className='btn-group'>
+            <View className={`btn-group ${isIphonex ? 'iphonex' : ''}`}>
                 <Button
                     className="scan-btn setting"
                     onClick={() => setShowSetting(true)}
