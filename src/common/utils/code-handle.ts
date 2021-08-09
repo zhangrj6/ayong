@@ -41,7 +41,7 @@ export function parseLed(led, prefix = Prefix.SINGLE_PHASE) {
         } else {
             ledObj.run = led & 0x02 ? color.green : color.grep;
             ledObj.standby = led & 0x04 ? color.yellow : color.grep;
-            ledObj.fault = [color.grep, color.red, color.blue, color.purple][(led & 0x18) >> 2];
+            ledObj.fault = [color.grep, color.red, color.blue, color.purple][(led & 0x18) >> 3];
             ledObj.loss = led & 0x20 ? color.red : color.grep;
         }
     }

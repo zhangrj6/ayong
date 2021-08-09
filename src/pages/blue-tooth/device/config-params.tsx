@@ -88,16 +88,19 @@ function ConfigParams({ connected, sendCommand, receiveData }) {
                     Taro.atMessage({ message: '外部开关设置成功', type: 'success' });
                     break;
                 case InstructionMap.SET_LEAKAGE:
-                    setIsLeakage(receiveData.data.switchStatus !== 1);
-                    Taro.atMessage({ message: '漏电开关设置成功', type: 'success' });
+                    const statusLeakage = receiveData.data.switchStatus !== 1;
+                    setIsLeakage(statusLeakage);
+                    Taro.atMessage({ message: statusLeakage ? '漏电开关打开设置成功' : '漏电开关关闭设置成功', type: 'success' });
                     break;
                 case InstructionMap.SET_OVERLOAD:
-                    setIsOverload(receiveData.data.switchStatus !== 1);
-                    Taro.atMessage({ message: '过载开关设置成功', type: 'success' });
+                    const statusSwitch = receiveData.data.switchStatus !== 1;
+                    setIsOverload(statusSwitch);
+                    Taro.atMessage({ message: statusSwitch ? '过载开关打开设置成功' : '过载开关关闭设置成功', type: 'success' });
                     break;
                 case InstructionMap.SET_AUTO:
-                    setIsAuto([1,2].findIndex(e => e === receiveData.data.switchStatus) < 0);
-                    Taro.atMessage({ message: '自动开关设置成功', type: 'success' });
+                    const statusAuto = [1,2].findIndex(e => e === receiveData.data.switchStatus) < 0;
+                    setIsAuto(statusAuto);
+                    Taro.atMessage({ message: statusAuto ? '自动开关打开设置成功' : '自动开关关闭设置成功', type: 'success' });
                     break;
                 case InstructionMap.GET_PARAM_INFO:
                     setDelayShutdown(receiveData.data.delayShutdown);
