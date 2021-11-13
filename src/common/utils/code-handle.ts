@@ -16,6 +16,7 @@ export const color = {
     blue: '#4169e1', // 蓝
     purple: '#9400d3', // 紫
     white: '#ffffff', // 白
+    black: '#000000', // 黑色
 }
 // 解析信号灯颜色
 export function parseLed(led, prefix = Prefix.SINGLE_PHASE) {
@@ -38,10 +39,12 @@ export function parseLed(led, prefix = Prefix.SINGLE_PHASE) {
             ledObj.run = led & 0x01 ? color.green : color.grep;
             ledObj.standby = led & 0x02 ? color.yellow : color.grep;
             ledObj.fault = [color.grep, color.red, color.blue, color.purple][(led & 0x0c) >> 2];
+            // console.log(led);
         } else {
             ledObj.run = led & 0x02 ? color.green : color.grep;
             ledObj.standby = led & 0x04 ? color.yellow : color.grep;
             ledObj.fault = [color.grep, color.red, color.blue, color.purple][(led & 0x18) >> 3];
+            // ledObj.fault = [color.grep, color.blue, color.black, color.black][(led & 0x18) >> 3];
             ledObj.loss = led & 0x20 ? color.red : color.grep;
         }
     }
@@ -52,7 +55,7 @@ export function parseLed(led, prefix = Prefix.SINGLE_PHASE) {
 // 一机多枪
 export const cfgMutlMachine = [
     { label: '一机一枪', value: 0 },
-    { label: '一机多枪', value: 128 },
+    { label: '一机多枪', value: 1 },
     // { label: '互连一机多枪带跳频', value: 144 },
     // { label: '独立一机多枪不跳频', value: 160 },
     // { label: '独立一机多枪带跳频', value: 176 },

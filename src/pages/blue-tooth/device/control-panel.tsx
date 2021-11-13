@@ -3,7 +3,6 @@ import { Text, View } from "@tarojs/components";
 import { AtIcon, AtSwitch } from "taro-ui";
 import { commandCodeMap, InstructionMap } from '@common/const/command-code';
 import { parseLed, color } from '@common/utils/code-handle';
-import { useRoundRobin } from '@hooks/tools';
 import './index.scss';
 
 function ControlPanel({ sendCommand, connected, receiveData }) {
@@ -12,7 +11,7 @@ function ControlPanel({ sendCommand, connected, receiveData }) {
     const [currentL3, setCurrentL3] = useState('');
     const [voltage, setVoltage] = useState('0.0');
     const [leakage, setLeakage] = useState('0.0');
-    const [realtime, setRealtime] = useState(true);
+    // const [realtime, setRealtime] = useState(true);
     const [deviceVoltage, setDeviceVoltage] = useState('不支持');
     const [led, setLed] = useState({
         run: color.grep,
@@ -20,15 +19,6 @@ function ControlPanel({ sendCommand, connected, receiveData }) {
         fault: color.grep,
         loss: '',
     })
-    const { proceed, suspend } = useRoundRobin(() => {
-        if (connected) sendCommand(commandCodeMap.realTimeCommunication);
-    })
-
-    // 实时通信副作用逻辑
-    useEffect(() => {
-        proceed();
-        return () => suspend();
-    }, []);
 
     useEffect(() => {
         if (connected && receiveData.id === InstructionMap.GET_REALTIME_INFO) {
@@ -42,6 +32,7 @@ function ControlPanel({ sendCommand, connected, receiveData }) {
             const ledObj = parseLed(parseInt(led, 16), receiveData.prefix)
             setLed(ledObj);
         }
+        // console.log(receiveData, "receiveData")
     }, [receiveData, connected])
 
     return (
@@ -90,7 +81,7 @@ function ControlPanel({ sendCommand, connected, receiveData }) {
                 </View>
             </View>
             <View className="switch-group">
-                <AtSwitch
+                {/* <AtSwitch
                     disabled={!connected}
                     title="实时通信"
                     checked={realtime}
@@ -99,7 +90,7 @@ function ControlPanel({ sendCommand, connected, receiveData }) {
                         else suspend();
                         setRealtime(value)
                     }}
-                />
+                /> */}
                 <View className="switch-item on" onClick={() => {
                     if (wx.vibrateShort) wx.vibrateShort({ type: 'medium'});
                     sendCommand(commandCodeMap.openDevice)

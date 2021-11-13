@@ -1,7 +1,7 @@
 import Taro, {useState, useEffect, useCallback} from "@tarojs/taro";
 import {
     AtAccordion, AtList, AtListItem, AtInputNumber, AtRadio,
-    AtModal, AtModalHeader, AtModalContent, AtModalAction, AtSwitch
+    AtModal, AtModalHeader, AtModalContent, AtModalAction,
 } from 'taro-ui'
 import { View, Button } from '@tarojs/components'
 import { commandCodeMap, InstructionMap } from '@common/const/command-code';
@@ -54,10 +54,10 @@ function ConfigParams({ connected, sendCommand, receiveData }) {
         }
     }, [connected]);
 
+    
     // 处理参数设置返回值
     useEffect(() => {
         if (receiveData && receiveData.data) {
-            console.log(receiveData.data);
             switch (receiveData.id) {
                 case InstructionMap.SET_RATED_CURRENT:
                     setRatedCurrent(receiveData.data.ratedCurrent);
@@ -80,7 +80,7 @@ function ConfigParams({ connected, sendCommand, receiveData }) {
                     Taro.atMessage({ message: '待机自动关机设置成功', type: 'success' });
                     break;
                 case InstructionMap.SET_MUTI_MACHINE:
-                    setMutlMachineOneGun(Number(String(receiveData.data.switchStatus)[0]));
+                    setMutlMachineOneGun(receiveData.data.switchStatus);
                     Taro.atMessage({ message: '一机多枪设置成功', type: 'success' });
                     break;
                 case InstructionMap.SET_EXTERNAL_SWITCH:
@@ -109,10 +109,11 @@ function ConfigParams({ connected, sendCommand, receiveData }) {
                     setStandbyShutdown(receiveData.data.standbyShutdown);
                     setMonitorPeriod(receiveData.data.monitorPeriod);
                     setExternalSwitch(receiveData.data.externalSwitchType);
-                    setMutlMachineOneGun(Number(String(parseInt(receiveData.data.wireless.config, 16))[0]));
-                    setIsOverload(receiveData.data.isOverload * 1 !== 1);
-                    setIsLeakage(receiveData.data.isLeakage * 1 !== 1);
+                    setMutlMachineOneGun(parseInt(receiveData.data.wireless.config, 16));
+                    setIsOverload(receiveData.data.isOverload !== 1);
+                    setIsLeakage(receiveData.data.isLeakage !== 1);
                     setIsAuto([1,2].findIndex(e => e === receiveData.data.isAutoFlag * 1) < 0);
+                    console.log(receiveData.data);
             }
             // Taro.atMessage({ message: `${modalHeader}设置成功`, type: 'success' });
         }
@@ -230,7 +231,7 @@ function ConfigParams({ connected, sendCommand, receiveData }) {
             command: genMutiMachineOneGun,
             param: {
                 options: cfgMutlMachine,
-                value: mutlMachineOneGun * 1,
+                value: mutlMachineOneGun,
             }
         })
         setShowModal(true);
@@ -243,7 +244,7 @@ function ConfigParams({ connected, sendCommand, receiveData }) {
             command: genExternalSwitch,
             param: {
                 options: cfgExternalSwitch,
-                value: externalSwitch * 1,
+                value: externalSwitch,
             }
         })
         setShowModal(true);
@@ -261,33 +262,31 @@ function ConfigParams({ connected, sendCommand, receiveData }) {
     }, [modalContent])
 
     const setOverload = useCallback((event) => {
+        setIsOverload(false);
         const code = genSwitchOverload(event.target.value);
-        setIsOverload(event.target.value);
         sendCommand(code)
+        setTimeout(() => {
+            sendCommand(commandCodeMap.readParamInfo);
+        }, 300);
     }, [connected])
 
     const setLeakage = useCallback((event) => {
+        setIsLeakage(false);
         const code = genSwitchLeakage(event.target.value);
-        setIsLeakage(event.target.value);
         sendCommand(code)
+        setTimeout(() => {
+            sendCommand(commandCodeMap.readParamInfo);
+        }, 300);
     }, [connected])
 
     const setAuto = useCallback((event) => {
+        setIsAuto(false);
         const code = genSwitchAuto(event.target.value);
         sendCommand(code)
         setTimeout(() => {
             sendCommand(commandCodeMap.readParamInfo);
-        }, 1000);
+        }, 300);
     }, [connected])
-
-    const arrayFilter = (array, value) => {
-        const defineArr =  array.find(item => item.value === value * 1)
-        if(defineArr) {
-            return defineArr.label
-        } else {
-            return value
-        }
-    }
 
     return (
         <View>
@@ -341,13 +340,13 @@ function ConfigParams({ connected, sendCommand, receiveData }) {
                 <AtListItem
                     title='一机多枪配置'
                     iconInfo={{ size: 20, color: '#346fc2', prefixClass: 'lw', value: 'multi-gun' }}
-                    extraText={arrayFilter(cfgMutlMachine, mutlMachineOneGun)}
+                    extraText={cfgMutlMachine.find(e => e.value == mutlMachineOneGun)?.label || mutlMachineOneGun}
                     onClick={changeMutiMachineOneGun}
                 />
                 <AtListItem
                     title='外接开关配置'
                     iconInfo={{ size: 20, color: '#346fc2', prefixClass: 'lw', value: 'out-switch' }}
-                    extraText={arrayFilter(cfgExternalSwitch, externalSwitch)}
+                    extraText={cfgExternalSwitch.find(e => e.value == externalSwitch)?.label || externalSwitch}
                     onClick={changeExternalSwitch}
                 />
             </AtAccordion>

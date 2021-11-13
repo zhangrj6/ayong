@@ -2,7 +2,7 @@ import Taro, { Component, Config } from '@tarojs/taro'
 import 'taro-ui/dist/style/index.scss'
 // @ts-ignore
 import config from '@common/env/config'
-import Index from './pages/index'
+import Index from './pages/blue-tooth/device'
 import './app.scss'
 
 // 如果需要在 h5 环境中开启 React Devtools
@@ -40,6 +40,8 @@ class App extends Component {
   config: Config = {
     pages: [
       'pages/index/index',
+      'pages/login/index',
+      'pages/getphone/index',
       'pages/blue-tooth/device/index'
     ],
     window: {
@@ -47,6 +49,11 @@ class App extends Component {
       navigationBarBackgroundColor: '#fff',
       navigationBarTitleText: 'WeChat',
       navigationBarTextStyle: 'black'
+    },
+    "permission": {
+      "scope.userLocation": {
+        "desc": "你的位置信息将用于小程序位置接口的效果展示" // 高速公路行驶持续后台定位
+      }
     }
   };
 

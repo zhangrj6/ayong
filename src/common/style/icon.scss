@@ -1,8 +1,15 @@
+// @font-face {
+//   font-family: 'lwicon';  /* Project id 1307911 */
+//   src: url('//at.alicdn.com/t/font_1307911_mq3iwsw4o8o.woff2?t=1627213394274') format('woff2'),
+//   url('//at.alicdn.com/t/font_1307911_mq3iwsw4o8o.woff?t=1627213394274') format('woff'),
+//   url('//at.alicdn.com/t/font_1307911_mq3iwsw4o8o.ttf?t=1627213394274') format('truetype');
+// }
+
 @font-face {
-  font-family: 'lwicon';  /* Project id 1307911 */
-  src: url('//at.alicdn.com/t/font_1307911_mq3iwsw4o8o.woff2?t=1627213394274') format('woff2'),
-  url('//at.alicdn.com/t/font_1307911_mq3iwsw4o8o.woff?t=1627213394274') format('woff'),
-  url('//at.alicdn.com/t/font_1307911_mq3iwsw4o8o.ttf?t=1627213394274') format('truetype');
+  font-family: "lwicon"; /* Project id 1307911 */
+  src: url('//at.alicdn.com/t/font_1307911_33ffvgxyyl4.woff2?t=1634575245912') format('woff2'),
+       url('//at.alicdn.com/t/font_1307911_33ffvgxyyl4.woff?t=1634575245912') format('woff'),
+       url('//at.alicdn.com/t/font_1307911_33ffvgxyyl4.ttf?t=1634575245912') format('truetype');
 }
 
 .lw {
@@ -14,7 +21,12 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
-
+.lw-banben:before {
+  content: "\e628";
+}
+.lw-kongzhizhongxin:before {
+  content: "\eafa";
+}
 .lw-chuankou:before{ content: '\ec79' }
 .lw-shebei:before{ content: '\ec76' }
 .lw-zhuangxiu:before{ content: '\ec50' }

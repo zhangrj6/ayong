@@ -1,6 +1,7 @@
 import { parse2Byte } from './code-handle';
 import Taro from "@tarojs/taro";
-import { InstructionMap } from '../const/command-code';
+import { parseLed, cfgControlModel } from './code-handle';
+import { InstructionMap,  } from '../const/command-code';
 import { genCheckCode } from './instruction-encode';
 
 // 解析指令中的通用信息
@@ -70,7 +71,10 @@ function parseParamInfo(code) {
             standby: [6, 11, 11][parseInt(code[52], 16)], // 三相备用
         }
     }
-    console.log('解析读取参数信息', result)
+    console.log({
+        isOverload:result.data.isOverload,
+        isLeakage:result.data.isLeakage,
+    })
     Taro.setStorageSync('systemInfo', result.data);
     return result;
 }
@@ -142,41 +146,74 @@ function parseSwitch(code) {
 }
 // 读取实时数据信息
 function parseRealTimeInfo(code) {
-    console.log('实时数据信息', code)
     const commonInfo = parseCommonInfo(code);
+    const start_flag = parseInt(code[10], 16);
+    let offsetValueBoard = 220 // 设备主板 偏差值
+
     // 获取全局存储的配置数据
     const systemInfo = Taro.getStorageSync('systemInfo');
+    const KEY = ''
     /**
      * 设备实时数据
      */
     const runtime = {
-        hour: systemInfo.runTime.hour,
+        hour: systemInfo?systemInfo.runTime.hour:0,
         minute: parseInt(code[11], 16),
         second: parseInt(code[12], 16)
     }
+    var softwareVersion  = systemInfo.softwareVersion 
+    const VOLTAGEADC_KEY = 'voltageAdc_softwareVersion'
     /**
      * 电器实时数据
      */
     const currentRate = systemInfo.currentRate || 74; // 电流倍率
     const leakageCurrent = systemInfo.leakageCurrent || 1023; // 漏电参考值
     const resistanceRate = systemInfo.standby || 11; // 电阻比率
+    
     // 是否显示漏电电流
     const isShowLeakage = parse2Byte(code[6], code[5], 1) > 10;
     // 主板电压
     const boardVoltage = parse2Byte(code[8], code[7], 1023 / (3.3 * resistanceRate));
     // 获取软件版本号，来判断是变压器，还是开关电源(5,6变压器，其余为开关电源)
-    const vchanger = [5,6];
-    const flag = systemInfo.softwareVersion.toString()[1];
+    const vchanger = [5];
+    const flag = softwareVersion.toString()[1];
+    // 判断
+    let isThreeVersion = (softwareVersion.toString()[0] * 1) % 2 == 0// 基数 单项 220v 偶数三项  380v
+    if(isThreeVersion) { // 三项判断
+        if(start_flag * 1) { 
+            offsetValueBoard = 380 / 352 // 开机
+        } else {
+            offsetValueBoard = 380 / 524 // 关机
+        }
+    } else {
+        if(start_flag * 1) { 
+            offsetValueBoard = 220 / 342 // 开机
+        } else {
+            offsetValueBoard = 220 / 530 // 关机
+        }
+    }
+    // 电流信息
+    const current = parse2Byte(code[4], code[3], currentRate / 10)
+
+    const voltageAdc = parse2Byte(code[8], code[7], 1)
+
+    if(voltageAdc > 400 && start_flag == 0) {
+        Taro.setStorageSync(VOLTAGEADC_KEY, true)
+        console.log("voltageAdc", voltageAdc)
+    }
+
+    const voltageAdc_status = Taro.getStorageSync(VOLTAGEADC_KEY);
+    console.log(voltageAdc_status, "voltageAdc_status")
     return {
         ...commonInfo,
         data: {
             runtime,
-            current: parse2Byte(code[4], code[3], currentRate / 10),
+            current: current,
             currentL2: commonInfo.prefix === 'FA' ? parse2Byte(code[18], code[17], currentRate / 10).toFixed(1) : '',
             currentL3: commonInfo.prefix === 'FA' ? parse2Byte(code[20], code[19], currentRate / 10).toFixed(1) : '',
             leakage: isShowLeakage ? parse2Byte(code[6], code[5], leakageCurrent / 30).toFixed(1) : '0',
             voltage: boardVoltage,
-            deviceVoltage: vchanger.findIndex(e => e == flag) > -1 ? (boardVoltage * 220 / 12).toFixed(1) : '不支持',
+            deviceVoltage: (vchanger.findIndex(e => e == flag) > -1) || voltageAdc_status ? (voltageAdc * offsetValueBoard).toFixed(1) : '不支持',
             led: code[9],
         }
     }
@@ -211,4 +248,105 @@ export function instructionParseStrategy(code) {
     // 校验通过，是否有对应的指令解析方法
     if (!instructionParseMap[id]) return {};
     return instructionParseMap[id](codeArray);
+}
+
+
+
+// 解析所有的socket 参数
+
+export function analyticalParameters(receiveData, code) {
+    let data = receiveData
+    if(data.id) {
+        switch(data.id) {
+            case InstructionMap.GET_REALTIME_INFO: // 机器信息
+                const { current, currentL2, currentL3, voltage, leakage, deviceVoltage, led, runtime } = receiveData.data;
+                const ledObj = parseLed(parseInt(led, 16), receiveData.prefix)
+                data = {
+                    status: {
+                        //run: '', //运行颜色
+                        //standby: '', // 待机颜色
+                        //fault: '', // 故障颜色
+                        //loss: '', // 缺项颜色
+                        ...ledObj
+                    },
+                    info: {
+                        currentL:[current, currentL2, currentL3], // 设备电流
+                        voltage: voltage, // 主板电压
+                        deviceVoltage: deviceVoltage, // 设备电压
+                        leakage: leakage, // 设备漏电
+                    },
+                    runtime: `${runtime.hour}小时${runtime.minute}分钟${runtime.second}秒` // 电机运转时间
+                }
+            break;
+
+            case InstructionMap.SET_RATED_CURRENT: // 额定电流设置成功
+                    return {
+                        ratedCurrent: receiveData.data.ratedCurrent
+                    }
+                case InstructionMap.SET_DELAY_STARTUP: // 开枪延时开机设置成功
+                    return {
+                        delayStartup: Number(receiveData.data.delayStartup)/2)
+                    }
+                case InstructionMap.SET_DELAY_SHUTDOWN: // 关枪延时关机设置成功
+                    return {
+                        delayShutdown: Number(receiveData.data.delayShutdown)
+                    }
+                case InstructionMap.SET_MONITOR_PERIOD: // 实时监测周期设置成功
+                    return {
+                        monitorPeriod: Number(receiveData.data.monitorPeriod)
+                    }
+                case InstructionMap.SET_STANDBY_SHUTDOWN:// 待机自动关机设置成功
+                    return {
+                        standbyShutdown: Number(receiveData.data.standbyShutdown)/60
+                    }
+                case InstructionMap.SET_MUTI_MACHINE: // 一机多枪设置成功
+                    return {
+                        mutlMachineOneGun: Number(String(receiveData.data.switchStatus)[0])
+                    }
+                case InstructionMap.SET_EXTERNAL_SWITCH: // 外部开关设置成功
+                    return {
+                        externalSwitchType: Number(receiveData.data.switchStatus)
+                    }
+                case InstructionMap.SET_LEAKAGE: // 漏电开关打开设置成功
+                    return {
+                        isLeakage: receiveData.data.switchStatus * 1 !== 1,
+                    }
+                case InstructionMap.SET_OVERLOAD: // 过载开关打开设置成功
+                    return {
+                        isOverload: receiveData.data.switchStatus * 1 !== 1,
+                    }
+                case InstructionMap.SET_AUTO: // 自动开关打开
+                    const statusAuto = [1,2].findIndex(e => e === receiveData.data.switchStatus * 1) < 0;
+                    return {
+                        isAutoFlag: statusAuto,
+                    }
+                case InstructionMap.GET_PARAM_INFO:
+                    const { delayShutdown, 
+                        ratedCurrent, delayStartup, 
+                        standbyShutdown, monitorPeriod, externalSwitchType, isOverload,  
+                        cntOverload, cntLeakage, softwareVersion, controlConfig 
+                    } = receiveData.data
+                        const itemControlModel = cfgControlModel.find(e => e.value == controlConfig);
+                    return {
+                        delayShutdown, // 关枪延时关机
+                        ratedCurrent, // 额定工作电流
+                        delayStartup, // 开枪延时开机
+                        standbyShutdown, // 待机自动关机
+                        monitorPeriod, // 实时监测周期
+                        externalSwitchType, // 外接开关配置
+                        mutlMachineOneGun: Number(String(parseInt(receiveData.data.wireless.config, 16))[0]), // 一机多枪配置 
+                        isOverload: isOverload !== 1, // 过载保护开关
+                        isLeakage: receiveData.data.isLeakage !== 1, //漏电保护开关
+                        isAutoFlag : [1,2].findIndex(e => e === receiveData.data.isAutoFlag * 1) < 0), //自动运行开关
+                        cntOverload, // 漏电次数
+                        cntLeakage, // 过载次数
+                        softwareVersion, // 软件版本号
+                        itemControlModel: itemControlModel ? itemControlModel.label : '--', // 控制模式
+                        controlConfig, // 匹配模式
+                    }
+        }
+        return {code, ...data}
+    }
+
+    return null
 }

@@ -1,14 +1,25 @@
-import Taro, { useState, useEffect, useCallback, useMemo } from "@tarojs/taro"
+import Taro, { useState, useEffect, useCallback, useMemo, useRef } from "@tarojs/taro"
+import { commandCodeMap } from '@common/const/command-code';
 import { ab2hex, regSendData } from '@common/utils/data-handle';
 import { useBluetoothDataProcess } from '@hooks/bluetooth-data-process';
+import { useRoundRobin, getCodeKey } from '@hooks/tools';
+
 
 export function useBlueToothDevice() {
     const [connected, setConnected] = useState(false); // 连接成功状态
     const [connectLoading, setConnectLoading] = useState(false); // 是否正在连接
+    const [errorMsg, setErrorMsg] = useState(null); // 是否正在连接
     const [deviceId, setDeviceId] = useState('');
     const [serviceId, setServiceId] = useState('');
     const [characterId, setCharacterId] = useState('');
     const [receiveData, setReceiveData] = useState('');
+    const {current: cacheCodeCount} = useRef({})
+    const { proceed, suspend } = useRoundRobin(() => {
+        // console.clear();
+        // console.log(commandCodeMap.realTimeCommunication);
+        if (connected) sendCommander(commandCodeMap.realTimeCommunication);
+    }, 1000)
+    let cacheData = null
 
     const { resultData, processReceiveData } = useBluetoothDataProcess();
 
@@ -20,9 +31,16 @@ export function useBlueToothDevice() {
             rxduuid: uuid.rxduuid.toUpperCase(),
         }
     }, []);
+    useEffect(() => {
+        proceed(); //开启时时通讯
 
+        return () => {
+            suspend()
+        }
+    }, [])
     //
     useEffect(() => {
+        console.log('解析的数据为', resultData);
         setReceiveData(resultData);
     }, [resultData]);
     // 断开蓝牙设备
@@ -110,6 +128,11 @@ export function useBlueToothDevice() {
                     // 获取设备推送数据
                     Taro.onBLECharacteristicValueChange(res => {
                         const nowRecHex = ab2hex(res.value);
+                        cacheCodeCount[getCodeKey(nowRecHex)] = undefined
+                        if( cacheData === nowRecHex) { // 完全一致 不更新视图
+                            return
+                        }
+                        cacheData =  nowRecHex;
                         if (uuid.rxduuid !== res.characteristicId) return;
                         // 数据处理
                         processReceiveData(nowRecHex)
@@ -136,13 +159,47 @@ export function useBlueToothDevice() {
         }
     }, [])
 
+
     // 向设备发送指令
     const sendCommander = useCallback((command) => {
-        console.log('connected', connected)
+      
+        const filterCode = [
+            commandCodeMap.realTimeCommunication, 
+            commandCodeMap.readParamInfo,
+            // commandCodeMap.openDevice,
+            // commandCodeMap.closeDevice,
+        ]
+        if(!filterCode.includes(command)) {
+            console.log(command, '发送了数据')
+            if(cacheCodeCount[getCodeKey(command)]) {
+                if(cacheCodeCount[getCodeKey(command)] >= 3) {
+                    proceed();
+                    sendCommander(commandCodeMap.readParamInfo)
+                    cacheCodeCount[getCodeKey(command)] = undefined;
+                    setErrorMsg({
+                        code: command,
+                        msg: '没有响应结果'
+                    });
+                    return
+                }
+                cacheCodeCount[getCodeKey(command)]++
+            } else {
+                cacheCodeCount[getCodeKey(command)] = 1
+            }
+            suspend();
+            setTimeout(() => {
+                if(cacheCodeCount[getCodeKey(command)]) {
+                    sendCommander(command);
+                } else {
+                    sendCommander(commandCodeMap.realTimeCommunication)
+                    proceed();
+                }
+            }, 500);
+        }
+        // console.log('connected', connected)
         if (!connected){
             return;
         }
-        console.log('command', command)
         let hex = command || ''; //要发送的数据
         let buffer1;
         const typedArray = new Uint8Array(regSendData(hex).map(function (h) {
@@ -150,6 +207,7 @@ export function useBlueToothDevice() {
         }));
         buffer1 = typedArray.buffer;
         if (buffer1 === null) return;
+       
         const sendTime = new Date().getTime();
         Taro.writeBLECharacteristicValue({
             deviceId,
@@ -159,7 +217,6 @@ export function useBlueToothDevice() {
             success: () => {
                 // 测试指令发送延时
                 const sentTime = new Date().getTime();
-                console.log('指令发送成功', sentTime - sendTime)
             },
             fail: () => err => console.error('写入特征值', err)
         })
@@ -172,5 +229,7 @@ export function useBlueToothDevice() {
         disconnectDevice,
         sendCommander,
         receiveData,
+        cacheData,
+        errorMsg,
     }
 }

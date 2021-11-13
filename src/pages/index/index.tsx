@@ -1,4 +1,4 @@
-import Taro, { useState } from '@tarojs/taro'
+import Taro, { useEffect, useState } from '@tarojs/taro'
 import { View, Image } from '@tarojs/components'
 import BlueScan from "@components/blue-scan"
 import { AtTabBar } from 'taro-ui'
@@ -12,6 +12,14 @@ const TABBAR_ENUM = {
 
 function Index() {
   const [current, setCurrent] = useState(TABBAR_ENUM.device);
+  useEffect(() => {
+    let token =  Taro.getStorageSync('token')
+    if(!token) {
+        Taro.navigateTo({
+            url: '../login/index'
+        })
+    }
+  }, [])
   return (
       <View className='index'>
           <Image

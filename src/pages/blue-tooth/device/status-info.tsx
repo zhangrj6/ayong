@@ -1,18 +1,19 @@
 import Taro, {useState, useEffect, useCallback} from "@tarojs/taro";
 import {
-    AtAccordion, AtList, AtListItem, AtInputNumber, AtRadio,
+    AtAccordion, AtList, AtListItem, AtInputNumber, AtRadio, AtButton
 } from 'taro-ui'
-import { View } from '@tarojs/components'
-import { InstructionMap } from '@common/const/command-code';
+import { Button, View } from '@tarojs/components'
+import { InstructionMap, commandCodeMap } from '@common/const/command-code';
 import { cfgControlModel } from '@common/utils/code-handle'
 
-export default function StatusInfo({ connected, receiveData }) {
+export default function StatusInfo({ connected, receiveData, sendCommand }) {
     const [open, setOpen] = useState(false);
     const [runtimeStr, setRuntimeStr] = useState('');
     const [cntOverload, setCntOverload] = useState('--');
     const [cntLeakage, setCntLeakage] = useState('--');
     const [version, setVersion] = useState('--')
     const [controlModel, setControlModel] = useState('--')
+    const [controlConfig, setControlConfig] = useState(1);
 
     useEffect(() => {
         if (connected && receiveData.id === InstructionMap.GET_REALTIME_INFO) {
@@ -24,6 +25,7 @@ export default function StatusInfo({ connected, receiveData }) {
             setCntLeakage(cntLeakage);
             setVersion(softwareVersion);
             const itemControlModel = cfgControlModel.find(e => e.value == controlConfig);
+            setControlConfig(controlConfig)
             setControlModel(itemControlModel ? itemControlModel.label : '--')
         }
     }, [receiveData, connected])
@@ -56,14 +58,33 @@ export default function StatusInfo({ connected, receiveData }) {
                     />
                     <AtListItem
                         title='软件版本号'
-                        iconInfo={{ size: 20, color: '#346fc2', prefixClass: 'lw', value: 'overload' }}
+                        iconInfo={{ size: 20, color: '#346fc2', prefixClass: 'lw', value: 'banben' }}
                         extraText={version}
                     />
                     <AtListItem
                         title='控制模式'
-                        iconInfo={{ size: 20, color: '#346fc2', prefixClass: 'lw', value: 'overload' }}
+                        iconInfo={{ size: 20, color: '#346fc2', prefixClass: 'lw', value: 'kongzhizhongxin' }}
                         extraText={controlModel}
                     />
+{/*                     
+                    {controlConfig === 0 && <Button
+                       onClick={(e) => {
+                           sendCommand(commandCodeMap.wirelessMatch)
+                           Taro.atMessage({ message: '匹配成功' })
+                       }}
+                    >
+                        无线配对
+                    </Button>} */}
+                    {controlConfig === 0 && <AtButton  
+                    customStyle={{
+                        width: '100px',
+                        float: 'right',
+                        margin: '5px 15px 20px 0'
+                    }}
+                    onClick={(e) => {
+                           sendCommand(commandCodeMap.wirelessMatch)
+                           Taro.atMessage({ message: '匹配成功' })
+                       }} type='primary' size='small'>无线配对</AtButton>}
                 </AtList>
             </AtAccordion>
         </View>
