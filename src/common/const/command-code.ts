@@ -21,6 +21,8 @@ export const InstructionMap = {
     SET_MUTI_MACHINE: 'A8',
     GET_PARAM_INFO: 'E1',
     GET_REALTIME_INFO: 'E2',
+    SET_OPEN: 'B6',
+    SET_CLOSE: 'B7'
 }
 
 export const Prefix = {

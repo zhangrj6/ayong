@@ -4,6 +4,12 @@ import { parseLed, cfgControlModel } from './code-handle';
 import { InstructionMap,  } from '../const/command-code';
 import { genCheckCode } from './instruction-encode';
 
+function toFixed(number, count) {
+    if(typeof number === 'number') {
+        return number.toFixed(count);
+    }
+    return number;
+}
 // 解析指令中的通用信息
 function parseCommonInfo(code) {
     const dataLength = parseInt(code[1], 16);
@@ -71,10 +77,6 @@ function parseParamInfo(code) {
             standby: [6, 11, 11][parseInt(code[52], 16)], // 三相备用
         }
     }
-    console.log({
-        isOverload:result.data.isOverload,
-        isLeakage:result.data.isLeakage,
-    })
     Taro.setStorageSync('systemInfo', result.data);
     return result;
 }
@@ -134,6 +136,20 @@ function parseStandbyShutdown(code) {
     }
 }
 
+// 解析开关机
+
+function parseSwitchMachine(code) {
+    const commonInfo = parseCommonInfo(code);
+    const switchMachineState = commonInfo.id === 'B6' ? true : false
+    return {
+        ...commonInfo,
+        data: {
+            switchMachineState: switchMachineState,
+        }
+    }
+}
+
+
 // 开关
 function parseSwitch(code) {
     const commonInfo = parseCommonInfo(code);
@@ -156,10 +172,17 @@ function parseRealTimeInfo(code) {
     /**
      * 设备实时数据
      */
-    const runtime = {
+    let runtime = {
         hour: systemInfo?systemInfo.runTime.hour:0,
-        minute: parseInt(code[11], 16),
-        second: parseInt(code[12], 16)
+        minute: 0,
+        second: 0
+    }
+    if(code.length > 12) {
+        runtime = {
+            hour: systemInfo?systemInfo.runTime.hour:0,
+            minute: parseInt(code[11], 16) || 0,
+            second: parseInt(code[12], 16) || 0
+        }
     }
     var softwareVersion  = systemInfo.softwareVersion 
     const VOLTAGEADC_KEY = 'voltageAdc_softwareVersion'
@@ -199,11 +222,9 @@ function parseRealTimeInfo(code) {
 
     if(voltageAdc > 400 && start_flag == 0) {
         Taro.setStorageSync(VOLTAGEADC_KEY, true)
-        console.log("voltageAdc", voltageAdc)
     }
 
     const voltageAdc_status = Taro.getStorageSync(VOLTAGEADC_KEY);
-    console.log(voltageAdc_status, "voltageAdc_status")
     return {
         ...commonInfo,
         data: {
@@ -233,6 +254,8 @@ const instructionParseMap = {
     [InstructionMap.SET_OVERLOAD]: parseSwitch,
     [InstructionMap.SET_EXTERNAL_SWITCH]: parseSwitch,
     [InstructionMap.SET_MUTI_MACHINE]: parseSwitch,
+    [InstructionMap.SET_OPEN]:parseSwitchMachine,
+    [InstructionMap.SET_CLOSE]:parseSwitchMachine,
 }
 
 // 解析指令返回码策略
@@ -259,7 +282,7 @@ export function analyticalParameters(receiveData, code) {
     if(data.id) {
         switch(data.id) {
             case InstructionMap.GET_REALTIME_INFO: // 机器信息
-                const { current, currentL2, currentL3, voltage, leakage, deviceVoltage, led, runtime } = receiveData.data;
+                const { current = 10.3124124124, currentL2 = 100.3124124124, currentL3 = 100.3124124124, voltage, leakage, deviceVoltage, led, runtime } = receiveData.data;
                 const ledObj = parseLed(parseInt(led, 16), receiveData.prefix)
                 data = {
                     status: {
@@ -270,10 +293,10 @@ export function analyticalParameters(receiveData, code) {
                         ...ledObj
                     },
                     info: {
-                        currentL:[current, currentL2, currentL3], // 设备电流
-                        voltage: voltage, // 主板电压
-                        deviceVoltage: deviceVoltage, // 设备电压
-                        leakage: leakage, // 设备漏电
+                        currentL:[toFixed(current, 1), toFixed(currentL2, 1), toFixed(currentL3, 1)], // 设备电流
+                        voltage: toFixed(voltage, 1), // 主板电压
+                        deviceVoltage: toFixed(deviceVoltage, 1), // 设备电压
+                        leakage: toFixed(leakage, 1), // 设备漏电
                     },
                     runtime: `${runtime.hour}小时${runtime.minute}分钟${runtime.second}秒` // 电机运转时间
                 }
@@ -320,6 +343,14 @@ export function analyticalParameters(receiveData, code) {
                     return {
                         isAutoFlag: statusAuto,
                     }
+                case InstructionMap.SET_OPEN: // 开机
+                    return {
+                        set_open: true,
+                    }
+                case InstructionMap.SET_CLOSE: // 关机
+                    return {
+                        set_close: false,
+                    }
                 case InstructionMap.GET_PARAM_INFO:
                     const { delayShutdown, 
                         ratedCurrent, delayStartup, 
@@ -335,8 +366,8 @@ export function analyticalParameters(receiveData, code) {
                         monitorPeriod, // 实时监测周期
                         externalSwitchType, // 外接开关配置
                         mutlMachineOneGun: Number(String(parseInt(receiveData.data.wireless.config, 16))[0]), // 一机多枪配置 
-                        isOverload: isOverload !== 1, // 过载保护开关
-                        isLeakage: receiveData.data.isLeakage !== 1, //漏电保护开关
+                        isOverload: isOverload * 1 !== 1, // 过载保护开关
+                        isLeakage: receiveData.data.isLeakage * 1 !== 1, //漏电保护开关
                         isAutoFlag : [1,2].findIndex(e => e === receiveData.data.isAutoFlag * 1) < 0), //自动运行开关
                         cntOverload, // 漏电次数
                         cntLeakage, // 过载次数

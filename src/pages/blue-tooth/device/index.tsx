@@ -3,7 +3,7 @@ import { Button, View } from "@tarojs/components";
 import { AtMessage } from 'taro-ui';
 import io from '@common/utils/transferDevice'
 import { commandCodeMap } from '@common/const/command-code'
-import { getCodeTitle } from '@hooks/tools'
+import { getCodeTitle, getCodeKey } from '@hooks/tools'
 import { useBlueToothDevice } from "@hooks/bluetooth-device";
 import { analyticalParameters } from '@common/utils/instruction-decode';
 import ControlPanel from "./control-panel";
@@ -42,12 +42,19 @@ function Device() {
     io.listener = (socketData) => {
         const type = socketData.meta.target
         const data = socketData.data.payload
-        console.log('[socket]', type, data)
+        // console.log('[socket]', type, data)
         // 命令处理
         if(type === 'send') {
             sendCommander(data.data, false)
         }
         if(type === 'get') {
+            if(data.type === 'getRealTime') {
+                let returnData = analyticalParameters(receiveData, cacheData);
+                if(returnData.runtime) {
+                    io.massMessage(returnData);
+                }
+                return;
+            }
             sendCommander(commandCodeMap.readParamInfo, false);
             let returnData = analyticalParameters(receiveData, cacheData);
             if(returnData) {
@@ -69,6 +76,7 @@ function Device() {
 
     useEffect(() => {
         if(errorMsg) {
+            let code = getCodeKey(errorMsg.code)
             const msg = getCodeTitle(errorMsg.code) + errorMsg.msg
             Taro.atMessage({ message: msg, type: 'success' });
             // 发送到远程消息
@@ -76,12 +84,14 @@ function Device() {
                 code: '500',
                 msg: msg
             });
+          
         }
     }, [errorMsg]);
 
     useEffect(() => {
         let returnData = analyticalParameters(receiveData);
         if(returnData) {
+            console.log(returnData);
             io.massMessage(returnData);
         }
     }, [receiveData])

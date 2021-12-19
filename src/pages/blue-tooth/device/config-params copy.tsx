@@ -113,7 +113,6 @@ function ConfigParams({ connected, sendCommand, receiveData }) {
                     setIsOverload(receiveData.data.isOverload !== 1);
                     setIsLeakage(receiveData.data.isLeakage !== 1);
                     setIsAuto([1,2].findIndex(e => e === receiveData.data.isAutoFlag * 1) < 0);
-                    console.log(receiveData.data);
             }
             // Taro.atMessage({ message: `${modalHeader}设置成功`, type: 'success' });
         }

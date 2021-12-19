@@ -128,7 +128,7 @@ function BlueScan({ display }) {
                 onClose={() => setShowAction(false)}
             >
                 <AtActionSheetItem>
-                    版本号：0.0.5.3
+                    版本号：1.0.9
                 </AtActionSheetItem>
                 <AtActionSheetItem onClick={() => {
                     resetBluetoothModule(Taro.atMessage)

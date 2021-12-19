@@ -57,7 +57,7 @@ function ConfigParams({ connected, sendCommand, receiveData }) {
     // 处理参数设置返回值
     useEffect(() => {
         if (receiveData && receiveData.data) {
-            console.log(receiveData.data);
+            // console.log(receiveData.data);
             switch (receiveData.id) {
                 case InstructionMap.SET_RATED_CURRENT:
                     setRatedCurrent(receiveData.data.ratedCurrent);
@@ -229,8 +229,8 @@ function ConfigParams({ connected, sendCommand, receiveData }) {
             component: 'radio',
             command: genMutiMachineOneGun,
             param: {
-                options: cfgMutlMachine,
-                value: mutlMachineOneGun * 1,
+                options: cfgMutlMachine.filter(item => !item.select),
+                value: mutlMachineOneGun * 1 === 0? 0 : 128,
             }
         })
         setShowModal(true);

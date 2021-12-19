@@ -40,7 +40,6 @@ export function useBlueToothDevice() {
     }, [])
     //
     useEffect(() => {
-        console.log('解析的数据为', resultData);
         setReceiveData(resultData);
     }, [resultData]);
     // 断开蓝牙设备
@@ -162,19 +161,20 @@ export function useBlueToothDevice() {
 
     // 向设备发送指令
     const sendCommander = useCallback((command) => {
-      
+
         const filterCode = [
             commandCodeMap.realTimeCommunication, 
-            commandCodeMap.readParamInfo,
+            // commandCodeMap.readParamInfo,
             // commandCodeMap.openDevice,
             // commandCodeMap.closeDevice,
         ]
         if(!filterCode.includes(command)) {
-            console.log(command, '发送了数据')
             if(cacheCodeCount[getCodeKey(command)]) {
                 if(cacheCodeCount[getCodeKey(command)] >= 3) {
                     proceed();
-                    sendCommander(commandCodeMap.readParamInfo)
+                    setTimeout(() => {
+                        sendCommander(commandCodeMap.readParamInfo)
+                    }, 1000);
                     cacheCodeCount[getCodeKey(command)] = undefined;
                     setErrorMsg({
                         code: command,
@@ -194,7 +194,7 @@ export function useBlueToothDevice() {
                     sendCommander(commandCodeMap.realTimeCommunication)
                     proceed();
                 }
-            }, 500);
+            }, 400);
         }
         // console.log('connected', connected)
         if (!connected){
