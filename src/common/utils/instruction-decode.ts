@@ -22,7 +22,7 @@ function parseCommonInfo(code) {
     }
 }
 // 解析读取参数信息
-function parseParamInfo(code) {
+export function parseParamInfo(code) {
     const commonInfo = parseCommonInfo(code);
     const result = {
         ...commonInfo,
@@ -161,7 +161,7 @@ function parseSwitch(code) {
     }
 }
 // 读取实时数据信息
-function parseRealTimeInfo(code) {
+export function parseRealTimeInfo(code) {
     const commonInfo = parseCommonInfo(code);
     const start_flag = parseInt(code[10], 16);
     let offsetValueBoard = 220 // 设备主板 偏差值

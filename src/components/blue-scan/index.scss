@@ -2,20 +2,26 @@
 
 .index-true {
   .scroll-view {
-    height: calc(100vh - 250px);
+    height: calc(100vh - 150px);
     overflow-y: auto;
+    // height: calc(100vh - constant(safe-area-inset-bottom));
+    // height: calc(100vh - env(safe-area-inset-bottom));
     &.iphonex {
-      height: calc(100vh - 315px);
+      // height: calc(100vh - constant(safe-area-inset-bottom));
+      // height: calc(100vh - env(safe-area-inset-bottom));
     }
   }
   .btn-group {
     display: flex;
     justify-content: space-around;
     position: fixed;
-    bottom: 114px;
+    bottom: 0px;
     width: 100vw;
+    padding-bottom: calc(constant(safe-area-inset-bottom));
+    padding-bottom: calc(env(safe-area-inset-bottom));
     &.iphonex {
-      bottom: 172px;
+      padding-bottom: calc(constant(safe-area-inset-bottom));
+      padding-bottom: calc(env(safe-area-inset-bottom));
     }
     .scan-btn {
       margin: 0;

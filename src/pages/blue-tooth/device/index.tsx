@@ -1,7 +1,7 @@
 import Taro, { useState, useEffect, useRouter, useCallback, useDidHide } from "@tarojs/taro";
 import { Button, View } from "@tarojs/components";
 import { AtMessage } from 'taro-ui';
-import io from '@common/utils/transferDevice'
+// import io from '@common/utils/transferDevice'
 import { commandCodeMap } from '@common/const/command-code'
 import { getCodeTitle, getCodeKey } from '@hooks/tools'
 import { useBlueToothDevice } from "@hooks/bluetooth-device";
@@ -25,7 +25,7 @@ function Device() {
         errorMsg
     } = useBlueToothDevice();
     useEffect(() => {
-        io.createRoom(deviceId)
+        // io.createRoom(deviceId)
         Taro.setNavigationBarTitle({ title: name })
         // 进入设备自动连接设备
         connectDevice(deviceId);
@@ -35,33 +35,33 @@ function Device() {
             console.log('退出设备页面')
             disconnectDevice(deviceId);
             Taro.removeStorageSync('voltageAdc_softwareVersion')
-            io.close() // 断开
+            // io.close() // 断开
         }
     }, [])
 
-    io.listener = (socketData) => {
-        const type = socketData.meta.target
-        const data = socketData.data.payload
-        // console.log('[socket]', type, data)
-        // 命令处理
-        if(type === 'send') {
-            sendCommander(data.data, false)
-        }
-        if(type === 'get') {
-            if(data.type === 'getRealTime') {
-                let returnData = analyticalParameters(receiveData, cacheData);
-                if(returnData.runtime) {
-                    io.massMessage(returnData);
-                }
-                return;
-            }
-            sendCommander(commandCodeMap.readParamInfo, false);
-            let returnData = analyticalParameters(receiveData, cacheData);
-            if(returnData) {
-                io.massMessage(returnData);
-            }
-        }
-    }
+    // io.listener = (socketData) => {
+    //     const type = socketData.meta.target
+    //     const data = socketData.data.payload
+    //     // console.log('[socket]', type, data)
+    //     // 命令处理
+    //     if(type === 'send') {
+    //         sendCommander(data.data, false)
+    //     }
+    //     if(type === 'get') {
+    //         if(data.type === 'getRealTime') {
+    //             let returnData = analyticalParameters(receiveData, cacheData);
+    //             if(returnData.runtime) {
+    //                 io.massMessage(returnData);
+    //             }
+    //             return;
+    //         }
+    //         sendCommander(commandCodeMap.readParamInfo, false);
+    //         let returnData = analyticalParameters(receiveData, cacheData);
+    //         if(returnData) {
+    //             io.massMessage(returnData);
+    //         }
+    //     }
+    // }
 
     // 点击连接/断开连接，loading
     const handleConnect = useCallback(() => {
@@ -80,10 +80,10 @@ function Device() {
             const msg = getCodeTitle(errorMsg.code) + errorMsg.msg
             Taro.atMessage({ message: msg, type: 'success' });
             // 发送到远程消息
-            io.massMessage({
-                code: '500',
-                msg: msg
-            });
+            // io.massMessage({
+            //     code: '500',
+            //     msg: msg
+            // });
           
         }
     }, [errorMsg]);
@@ -92,17 +92,33 @@ function Device() {
         let returnData = analyticalParameters(receiveData);
         if(returnData) {
             console.log(returnData);
-            io.massMessage(returnData);
+            // io.massMessage(returnData);
         }
     }, [receiveData])
 
     return (
         <View className="device">
             <AtMessage />
-            <ControlPanel connected={connected} sendCommand={sendCommander} receiveData={receiveData} />
-            <View className="device-status">
-                <ConfigParams connected={connected} sendCommand={sendCommander} receiveData={receiveData} />
+            <ControlPanel connected={connected} sendCommand={sendCommander} receiveData={receiveData}>
                 <StatusInfo connected={connected} receiveData={receiveData} sendCommand={sendCommander} />
+            </ControlPanel>
+            <View className="device-status">
+                {/* <ConfigParams connected={connected} sendCommand={sendCommander} receiveData={receiveData} /> */}
+                <View>
+                    配对操作说明：
+                </View>
+                <View>
+                    1、点击“开始配对”按钮，当信号灯开始闪烁蓝色的时候，握住水枪扳机；
+                </View>
+                <View>
+                    2、当握住水枪扳机后，信号灯由蓝灯闪烁变成红灯闪烁的时候，松开水枪扳机，点击“退出配对”按钮；
+                </View>
+                <View>
+                    3、完成配对后，第一次工作时，握住水枪扳机5秒后，信号正常连接控制；
+                </View>
+                <View>
+                    4、正常工作时，握紧水枪扳机，运行灯亮绿色；松开水枪扳机，待机灯亮黄色。
+                </View>
             </View>
             <Button
                 loading={connectLoading}

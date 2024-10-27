@@ -32,7 +32,7 @@ export default function StatusInfo({ connected, receiveData, sendCommand }) {
 
     return (
         <View>
-            <AtAccordion
+            {/* <AtAccordion
                 open={open}
                 onClick={value => setOpen(value)}
                 isAnimation={false}
@@ -66,27 +66,19 @@ export default function StatusInfo({ connected, receiveData, sendCommand }) {
                         iconInfo={{ size: 20, color: '#346fc2', prefixClass: 'lw', value: 'kongzhizhongxin' }}
                         extraText={controlModel}
                     />
-{/*                     
-                    {controlConfig === 0 && <Button
-                       onClick={(e) => {
-                           sendCommand(commandCodeMap.wirelessMatch)
-                           Taro.atMessage({ message: '匹配成功' })
-                       }}
-                    >
-                        无线配对
-                    </Button>} */}
-                    {controlConfig === 0 && <AtButton  
+                </AtList>
+            </AtAccordion> */}
+
+            <AtButton  
                     customStyle={{
-                        width: '100px',
+                        width: '150px',
+                        fontSize: '20px',
                         float: 'right',
-                        margin: '5px 15px 20px 0'
                     }}
                     onClick={(e) => {
                            sendCommand(commandCodeMap.wirelessMatch)
-                           Taro.atMessage({ message: '匹配成功' })
-                       }} type='primary' size='small'>无线配对</AtButton>}
-                </AtList>
-            </AtAccordion>
+                           Taro.atMessage({ message: '开始配对' })
+                       }} type='primary' size='small'>开始配对</AtButton>
         </View>
     )
 }

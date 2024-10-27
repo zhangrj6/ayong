@@ -154,10 +154,10 @@ function ConfigParams({ connected, sendCommand, receiveData }) {
             param: {
                 options: [
                     { label: '不 延 时', value: 0 },
+                    { label: '延时 1 秒', value: 1 },
                     { label: '延时 3 秒', value: 3, desc: '推荐设置' },
                     { label: '延时 5 秒', value: 5 },
-                    { label: '延时 8 秒', value: 8 },
-                    { label: '延时 10秒', value: 10 },
+                    { label: '延时 8 秒', value: 8 }
                 ],
                 value: delayShutdown,
             }

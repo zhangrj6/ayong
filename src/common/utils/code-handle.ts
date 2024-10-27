@@ -29,11 +29,20 @@ export function parseLed(led, prefix = Prefix.SINGLE_PHASE) {
     // 获取软件版本号，以判断是否为数显模式
     const systemInfo = Taro.getStorageSync('systemInfo');
     const isDigital = systemInfo.softwareVersion.toString()[1] === '5';
-    // 处理灯色逻辑
-    if (isDigital) {
-        ledObj.run = led & 0x08 ? color.green : color.grep;
-        ledObj.standby = led & 0x10 ? color.yellow : color.grep;
-        ledObj.fault = [color.white, color.grep, color.grep, color.green, color.purple, color.blue, color.red, color.grep][(led & 0x07)];
+
+    // 判断是否为新的版本类型
+    const isNewVersion = ["17", "27"].includes(systemInfo.softwareVersion.toString().slice(0, 2))
+
+    if (isDigital || isNewVersion) {
+        if(isDigital) {
+            ledObj.run = led & 0x08 ? color.green : color.grep;
+            ledObj.standby = led & 0x10 ? color.yellow : color.grep;
+            ledObj.fault = [color.white, color.grep, color.grep, color.green, color.purple, color.blue, color.red, color.grep][(led & 0x07)];
+        } else {
+            ledObj.run = led & 0x10 ? color.green : color.grep;
+            ledObj.standby = led & 0x08 ? color.yellow : color.grep;
+            ledObj.fault = [color.white, color.grep, color.grep, color.blue, color.purple, color.red, color.green, color.grep][(led & 0x07)];
+        }
     } else {
         if(prefix === Prefix.SINGLE_PHASE) {
             ledObj.run = led & 0x01 ? color.green : color.grep;
